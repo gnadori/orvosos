@@ -4,32 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interaktív Diagnosztika (CSV + AI)</title>
+    
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; background-color: #f4f7f6; color: #333; max-width: 900px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h1 { color: #d9534f; text-align: center; }
-        h2 { border-bottom: 2px solid #5bc0de; padding-bottom: 5px; color: #0275d8; }
-        h3 { color: #d9534f; margin-top: 0; }
-        .section { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
-        .step { border-left: 4px solid #0275d8; padding-left: 15px; }
-        .result-box { background: #fdfaf4; border: 1px solid #f0ad4e; padding: 15px; margin-top: 15px; border-radius: 5px; }
-        .result-box h3, .context-box h3 { margin-top: 0; color: #d9534f; }
+        /* Google Font importálása */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        /* Színváltozók a könnyebb módosíthatóságért */
+        :root {
+            --primary-color: #007a9e; /* Professzionális orvosi kék/türkiz */
+            --primary-light: #e6f7ff;
+            --primary-border: #b3e0ff;
+            --dark-text: #2c3e50; /* Sötét (nem tiszta fekete) */
+            --light-text: #555;
+            --bg-color: #f4f7f9; /* Világosszürke háttér */
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --success-color: #5cb85c;
+            --warning-bg: #fdfaf4;
+            --warning-border: #f0ad4e;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.7; /* Jobb olvashatóság */
+            background-color: var(--bg-color);
+            color: var(--dark-text);
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 10px; /* Mobilra is jó legyen */
+        }
+        
+        h1 {
+            color: var(--dark-text); /* Nem harsány piros */
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        
+        h3 {
+            color: var(--dark-text);
+            margin-top: 0;
+            font-weight: 500;
+        }
+        
+        .section {
+            background: var(--card-bg);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .step {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 15px;
+        }
+        
+        .result-box {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+        
+        .result-box h3, .context-box h3 {
+            margin-top: 0;
+            color: var(--dark-text);
+        }
+        
         .result-box p { margin: 5px 0; }
-        .context-box { background: #f4f4f4; border: 1px solid #ddd; padding: 15px; margin-top: 20px; border-radius: 5px; }
-        .context-box p { margin: 5px 0; font-size: 0.9em; }
-        .patient-pic { float: right; max-width: 150px; border-radius: 8px; margin-left: 20px; margin-bottom: 10px; }
+        
+        .context-box {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        .context-box p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: var(--light-text);
+        }
+        
+        .patient-pic {
+            float: right;
+            max-width: 150px;
+            border-radius: 8px;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+        
         .hidden { display: none; }
-        label { display: block; margin: 8px 0; padding: 10px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; cursor: pointer; }
-        label:hover { background: #f0f0f0; }
-        input[type="checkbox"] { margin-right: 10px; }
-        textarea { width: 95%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
-        button { display: inline-block; padding: 12px 20px; font-size: 1.1em; font-weight: bold; color: #fff; background-color: #5cb85c; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #4a9d4a; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        #evaluation-loading { font-style: italic; color: #0275d8; }
-        #final-score { text-align: center; font-size: 1.2em; }
-        #evaluation-breakdown { list-style-type: none; padding-left: 0; }
-        #evaluation-breakdown li { background: #f9f9f9; border: 1px solid #eee; padding: 10px; margin-bottom: 8px; border-radius: 4px; }
-        #evaluation-breakdown .feedback-ai { background: #e6f7ff; border-color: #b3e0ff; }
+        
+        label {
+            display: block;
+            margin: 8px 0;
+            padding: 12px;
+            background: #fdfdfd;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        
+        label:hover {
+            background: #f9f9f9;
+            border-color: #c0c0c0;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.1);
+        }
+        
+        textarea {
+            width: 95%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        button {
+            display: inline-block;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #fff;
+            background-color: var(--primary-color); /* Új alapszín */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        button:hover {
+            background-color: #005f7a; /* Sötétebb árnyalat */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        #evaluation-loading {
+            font-style: italic;
+            color: var(--primary-color);
+        }
+        
+        #final-score {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 500;
+            margin-top: 15px;
+        }
+        
+        #evaluation-breakdown {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        #evaluation-breakdown li {
+            background: #f9f9f9;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+        }
+        
+        #evaluation-breakdown li.feedback-ai {
+            background: var(--primary-light);
+            border-color: var(--primary-border);
+        }
+        
+        #evaluation-breakdown li em {
+            color: var(--light-text);
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -62,7 +231,7 @@
         
         <div id="context-for-tests" class="context-box hidden">
             <h3>Emlékeztető: Eddigi anamnézis</h3>
-            </div>
+        </div>
 
         <div id="diagnostic-tests"></div>
         <small id="test-counter">Kivál.: 0/3</small><br>
@@ -80,7 +249,7 @@
 
         <div id="context-for-diagnosis" class="context-box hidden">
             <h3>Emlékeztető: Vizsgálati eredmények</h3>
-            </div>
+        </div>
 
         <div class="step">
             <p>Írja le a diagnózist az eddigi információk alapján.</p>
@@ -104,7 +273,7 @@
             <div id="final-score">
                 Elért pontszám: <strong id="score">0</strong> / <strong id="max-score">0</strong>
             </div>
-            </div>
+        </div>
     </div>
 
 
@@ -114,7 +283,7 @@
         // ===================================================
 
         // Globális adattárolók
-        let introData = [];
+        let introData = []; 
         let allQuestions = [];
         let allTests = [];
         let DIAGNOSIS_CRITERIA = {};
@@ -127,7 +296,6 @@
         let therapyScore = 0;
         let MAX_POSSIBLE_SCORE = 0; 
         
-        // 3. KÉRÉS: Globális változók a kontextus tárolására
         let anamnesisContext = "";
         let testContext = "";
 
@@ -185,7 +353,7 @@
                     });
                 } else if (entry.type === 'criterion') {
                     const criteriaObj = (entry.id.startsWith('diag')) ? DIAGNOSIS_CRITERIA : THERAPY_CRITERIA;
-                    criteriaObj[entry.text] = points;
+                    criteriaObj[entry.text] = points; 
                     MAX_POSSIBLE_SCORE += points;
                 }
             });
@@ -212,7 +380,6 @@
                         introHtml += item.body.split('|').map(p => `<p>${p.trim()}</p>`).join('');
                     }
                 });
-                // Az <img> taget a JS helyett már a HTML tartalmazza, hogy gyorsabban betöltődjön
                 introContainer.innerHTML += introHtml; 
             }
 
@@ -258,18 +425,15 @@
             }
             const answersContent = document.getElementById('anamnesis-answers-content');
             answersContent.innerHTML = "";
-            anamnesisContext = ""; // Kontextus nullázása
+            anamnesisContext = ""; 
             totalAnamnesisScore = 0; 
             
             selectedQuestions.forEach(q => {
                 const questionData = allQuestions.find(item => item.id === q.value);
                 totalAnamnesisScore += questionData.points;
                 
-                // 2. KÉRÉS: Pontszámok elrejtése
                 const answerHtml = `<p><strong>Kérdés:</strong> ${questionData.text}<br><strong>Válasz:</strong> ${questionData.answer}</p>`;
                 answersContent.innerHTML += answerHtml;
-                
-                // 3. KÉRÉS: Kontextus építése
                 anamnesisContext += answerHtml;
             });
             document.getElementById('phase-anamnesis').classList.add('hidden');
@@ -277,7 +441,6 @@
         }
 
         function showTests() {
-            // 3. KÉRÉS: Kontextus beillesztése és megjelenítése
             const contextDiv = document.getElementById('context-for-tests');
             contextDiv.innerHTML = '<h3>Emlékeztető: Eddigi anamnézis</h3>' + anamnesisContext;
             contextDiv.classList.remove('hidden');
@@ -294,18 +457,15 @@
             }
             const resultsContent = document.getElementById('test-results-content');
             resultsContent.innerHTML = "";
-            testContext = ""; // Kontextus nullázása
+            testContext = ""; 
             totalTestScore = 0;
             
             selectedTests.forEach(t => {
                 const testData = allTests.find(item => item.id === t.value);
                 totalTestScore += testData.points;
 
-                // 2. KÉRÉS: Pontszámok elrejtése
                 const resultHtml = `<p><strong>Vizsgálat:</strong> ${testData.text}<br><strong>Eredmény:</strong> ${testData.result}</p>`;
                 resultsContent.innerHTML += resultHtml;
-
-                // 3. KÉRÉS: Kontextus építése
                 testContext += resultHtml;
             });
             document.getElementById('phase-tests').classList.add('hidden');
@@ -313,7 +473,6 @@
         }
         
         function showDiagnosis() {
-            // 3. KÉRÉS: Kontextus beillesztése és megjelenítése
             const contextDiv = document.getElementById('context-for-diagnosis');
             contextDiv.innerHTML = '<h3>Emlékeztető: Vizsgálati eredmények</h3>' + testContext;
             contextDiv.classList.remove('hidden');
@@ -341,7 +500,6 @@
             document.getElementById('evaluation-content').classList.add('hidden');
 
             try {
-                // 4. KÉRÉS: A válasz most már objektum (score + feedback)
                 const diagnosisPromise = callGeminiScorer(diagnosisText, DIAGNOSIS_CRITERIA);
                 const therapyPromise = callGeminiScorer(therapyText, THERAPY_CRITERIA);
                 
@@ -357,7 +515,6 @@
 
                 const totalScore = totalAnamnesisScore + totalTestScore + diagnosisScore + therapyScore;
 
-                // 4. KÉRÉS: Részletes visszajelzés
                 const breakdownList = document.getElementById('evaluation-breakdown');
                 breakdownList.innerHTML = `
                     <li>Anamnézis pontszám: <strong>${totalAnamnesisScore} pont</strong></li>
@@ -402,7 +559,7 @@
             }
 
             const data = await response.json();
-            console.log("AI válasz fogadva:", data); // Most már {score: X, feedback: "..."} objektumot várunk
+            console.log("AI válasz fogadva:", data); 
             return data;
         }
 
