@@ -1,0 +1,27 @@
+type;id;text;answer_result;points
+intro;intro1;Anna, 45 éves, irodai dolgozó, fokozódó idegesség, szívdobogásérzés, szédülés, erős fáradtság és alvási nehézségek tüneteivel érkezik.|A tünetek főleg este, nyugalmi helyzetben jelentkeznek.;Esetleírás: Anna, 45 éves;0
+intro;intro2;A te feladatod, hogy a 10 lehetséges kérdésből 4-et, majd a 10 vizsgálatból 3-at kiválasztva felállítsd a helyes diagnózist és terápiát.;Feladat;0
+question;q1;Mióta érzi a tüneteket?;Kb. 2 hónapja, fokozatosan rosszabbodott.;5
+question;q2;Milyen gyakran jelentkezik a szívdobogás?;Esténként, nyugalomban, néha szédüléssel.;8
+question;q3;Dolgozik jelenleg?;Igen, egy multinál, nagy a stressz, sokat túlórázom.;10
+question;q4;Van ismert szívbetegsége?;Nincs, de a családban volt (édesapámnak).;2
+question;q5;Sportol valamit?;Próbálok, de legtöbbször nincs rá időm vagy energiám.;3
+question;q6;Hogyan alszik?;Rosszul, gyakran felébredek, nehezen alszom vissza.;8
+question;q7;Fogyaszt kávét, alkoholt?;Kávét sokat (napi 4-5), alkoholt csak hétvégén (1-2 pohár bor).;5
+question;q8;Szed valamilyen gyógyszert?;Csak fogamzásgátlót.;0
+question;q9;Volt mostanában beteg?;Nem, nem voltam lázas.;0
+question;q10;Érte valamilyen trauma mostanában?;A fiam egyetemre ment, nehéz volt elengedni, de ez már fél éve volt.;3
+test;t1;Szív ultrahang;Eredmény: Enyhe billentyű-prolapszus, jó balkamra funkció.;2
+test;t2;Reggeli kortizolszint mérés;Eredmény: Emelkedett (710 nmol/L).;10
+test;t3;Pajzsmirigy funkció (TSH, T4);Eredmény: Normál tartományban.;3
+test;t4;Holter-monitorozás (24h);Eredmény: Éjszakai órákban pitvari extraszisztolék (VES), egy-egy futam.;8
+test;t5;Fizikai terheléses EKG;Eredmény: Negatív, de a pulzus irreálisan magasra szökik a terhelés elején.;5
+test;t6;Vérkép, ionok;Eredmény: Normál tartományban.;0
+test;t7;ABPM (24h vérnyomás);Eredmény: Nappali magasabb átlag (135/85), éjszakai alacsonyabb. Megtartott.;3
+test;t8;Hasi ultrahang;Eredmény: Mellékvesék rendben, egyéb eltérés nincs.;0
+test;t9;Pszihiátriai konzílium;Eredmény: Szorongásos tünetek, kimerültség jelei.;5
+test;t10;Nyaki érfalon ultrahang;Eredmény: Nincs plakk, áramlás rendben.;0
+criterion;diag1;Stressz felismerése;A "stressz", "kimerültség", "szorongás" kulcsszavak említése a diagnózisban;5
+criterion;diag2;Szívritmuszavar felismerése;Az "extraszisztolé", "VES", "pitvari" vagy "szívritmuszavar" említése a diagnózisban;5
+criterion;ther1;Életmódbeli javaslatok;Az "életmód", "stresszkezelés", "relaxáció", "sport" említése a terápiában;5
+criterion;ther2;Gyógyszeres javaslatok;A "béta-blokkolo" (pl. metoprolol, bisoprolol) vagy "szorongásoldo" (pl. xanax, frontin) említése a terápiában;5

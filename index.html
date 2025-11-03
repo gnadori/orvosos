@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktív Diagnosztika (CSV + AI)</title>
+    <style>
+        /* A stílusok változatlanok */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; background-color: #f4f7f6; color: #333; max-width: 900px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h1 { color: #d9534f; text-align: center; }
+        h2 { border-bottom: 2px solid #5bc0de; padding-bottom: 5px; color: #0275d8; }
+        h3 { color: #d9534f; margin-top: 0; }
+        .section { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
+        .step { border-left: 4px solid #0275d8; padding-left: 15px; }
+        .result-box { background: #fdfaf4; border: 1px solid #f0ad4e; padding: 15px; margin-top: 15px; border-radius: 5px; }
+        .result-box h3 { margin-top: 0; color: #d9534f; }
+        .result-box p { margin: 5px 0; }
+        .hidden { display: none; }
+        label { display: block; margin: 8px 0; padding: 10px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; cursor: pointer; }
+        label:hover { background: #f0f0f0; }
+        input[type="checkbox"] { margin-right: 10px; }
+        textarea { width: 95%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+        button { display: inline-block; padding: 12px 20px; font-size: 1.1em; font-weight: bold; color: #fff; background-color: #5cb85c; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #4a9d4a; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #evaluation-loading { font-style: italic; color: #0275d8; }
+        #final-score { text-align: center; font-size: 1.2em; }
+        #evaluation-breakdown { list-style-type: none; padding-left: 0; }
+        #evaluation-breakdown li { background: #f9f9f9; border: 1px solid #eee; padding: 8px; margin-bottom: 5px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <h1>Diagnosztikai Feladat: Anna (45) esete</h1>
+
+    <div id="loading-csv" class="section">
+        <p>Adatbázis betöltése (adatok.csv)...</p>
+    </div>
+
+    <div id="case-introduction" class="section hidden">
+        </div>
+
+    <div id="phase-anamnesis" class="section hidden">
+        <h2>1. Anamnézis (Válasszon pontosan 4 kérdést!)</h2>
+        <div id="anamnesis-questions"></div>
+        <small id="question-counter">Kivál.: 0/4</small><br>
+        <button id="btn-anamnesis" onclick="handleAnamnesis()">Válaszok mutatása</button>
+    </div>
+
+    <div id="anamnesis-results" class="section result-box hidden">
+        <h3>1. Anamnézis - Válaszok</h3>
+        <div id="anamnesis-answers-content"></div>
+        <button id="btn-show-tests" onclick="showTests()">Tovább a vizsgálatokhoz</button>
+    </div>
+
+    <div id="phase-tests" class="section hidden">
+        <h2>2. Diagnosztikai vizsgálat (Válasszon pontosan 3 vizsgálatot!)</h2>
+        <div id="diagnostic-tests"></div>
+        <small id="test-counter">Kivál.: 0/3</small><br>
+        <button id="btn-handle-tests" onclick="handleTests()">Eredmények mutatása</button>
+    </div>
+
+    <div id="test-results" class="section result-box hidden">
+        <h3>2. Vizsgálatok - Eredmények</h3>
+        <div id="test-results-content"></div>
+        <button id="btn-show-diagnosis" onclick="showDiagnosis()">Tovább a diagnózishoz</button>
+    </div>
+
+    <div id="phase-diagnosis" class="section hidden">
+        <h2>3. Diagnózis és Terápia</h2>
+        <div class="step">
+            <p>Írja le a diagnózist az eddigi információk alapján.</p>
+            <textarea id="diagnosis-input" placeholder="Ide írja a diagnózist..."></textarea>
+        </div>
+        <div class="step" style="margin-top: 15px;">
+            <p>Írja le a javasolt terápiát.</p>
+            <textarea id="therapy-input" placeholder="Ide írja a terápiás javaslatot..."></textarea>
+        </div>
+        <button id="btn-evaluate" onclick="evaluateFinal()">Végleges értékelés</button>
+    </div>
+
+    <div id="phase-evaluation" class="section hidden">
+        <h2>Értékelés</h2>
+        <div id="evaluation-loading">
+            <p>A diagnózis és terápia kiértékelése folyamatban... (Gemini AI API hívás)</p>
+        </div>
+        <div id="evaluation-content" class="hidden">
+            <ul id="evaluation-breakdown">
+                </ul>
+            <div id="final-score">
+                Elért pontszám: <strong id="score">0</strong> / <strong id="max-score">0</strong>
+            </div>
+            <p id="feedback-text"></p>
+        </div>
+    </div>
+
+
+    <script>
+        // === TODO: CSERÉLJE KI A SAJÁT WORKER URL-JÉRE ===
+        const WORKER_URL = 'orvosolas.nadorig.workers.dev'; 
+        // ===================================================
+
+        // Globális adattárolók
+        let introData = []; // **** ÚJ ****
+        let allQuestions = [];
+        let allTests = [];
+        let DIAGNOSIS_CRITERIA = {};
+        let THERAPY_CRITERIA = {};
+
+        // Részletes pontszámok
+        let totalAnamnesisScore = 0;
+        let totalTestScore = 0;
+        let diagnosisScore = 0;
+        let therapyScore = 0;
+        let MAX_POSSIBLE_SCORE = 0; 
+
+        // === 1. LÉPÉS: ADATOK BETÖLTÉSE CSV-BŐL ===
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await loadDataFromCSV('adatok.csv');
+                initializeUI();
+                
+                // UI elemek mutatása
+                document.getElementById('loading-csv').classList.add('hidden');
+                document.getElementById('case-introduction').classList.remove('hidden'); // **** ÚJ ****
+                document.getElementById('phase-anamnesis').classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Hiba a CSV betöltésekor:", error);
+                document.getElementById('loading-csv').innerHTML = `<p style="color: red;">Hiba: Nem sikerült betölteni az 'adatok.csv' fájlt. (Hiba: ${error.message})</p>`;
+            }
+        });
+
+        async function loadDataFromCSV(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Nem található a fájl: ${url}`);
+            const csvText = await response.text();
+            
+            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
+            const headers = rows.shift().split(';'); 
+
+            rows.forEach(row => {
+                const values = row.split(';');
+                const entry = {};
+                headers.forEach((header, index) => {
+                    entry[header] = values[index];
+                });
+
+                const points = parseInt(entry.points) || 0;
+                
+                // **** MÓDOSÍTOTT SZEKCIÓ ****
+                if (entry.type === 'intro') {
+                    introData.push({
+                        title: entry.answer_result,
+                        body: entry.text
+                    });
+                } else if (entry.type === 'question') {
+                    allQuestions.push({
+                        id: entry.id,
+                        text: entry.text,
+                        answer: entry.answer_result,
+                        points: points
+                    });
+                } else if (entry.type === 'test') {
+                    allTests.push({
+                        id: entry.id,
+                        text: entry.text,
+                        result: entry.answer_result,
+                        points: points
+                    });
+                } else if (entry.type === 'criterion') {
+                    const criteriaObj = (entry.id.startsWith('diag')) ? DIAGNOSIS_CRITERIA : THERAPY_CRITERIA;
+                    criteriaObj[entry.text] = points; // Kulcs = leírás, érték = pont
+                    MAX_POSSIBLE_SCORE += points;
+                }
+                // **** MÓDOSÍTÁS VÉGE ****
+            });
+
+            // Max pontszám kiszámítása (kérdések és tesztek alapján)
+            const qPoints = allQuestions.map(q => q.points).sort((a, b) => b - a);
+            MAX_POSSIBLE_SCORE += qPoints.slice(0, 4).reduce((a, b) => a + b, 0);
+            
+            const tPoints = allTests.map(t => t.points).sort((a, b) => b - a);
+            MAX_POSSIBLE_SCORE += tPoints.slice(0, 3).reduce((a, b) => a + b, 0);
+
+            console.log("Adatok betöltve:", { introData, allQuestions, allTests, DIAGNOSIS_CRITERIA, THERAPY_CRITERIA, MAX_POSSIBLE_SCORE });
+        }
+
+        // === 2. LÉPÉS: UI INICIALIZÁLÁSA ===
+        function initializeUI() {
+            // **** ÚJ SZEKCIÓ: Esetleírás betöltése ****
+            const introContainer = document.getElementById('case-introduction');
+            if (introContainer) {
+                let introHtml = "";
+                introData.forEach(item => {
+                    if (item.title) {
+                        introHtml += `<h3>${item.title}</h3>`;
+                    }
+                    if (item.body) {
+                        // A '|' karaktert bekezdésekre bontjuk
+                        introHtml += item.body.split('|').map(p => `<p>${p.trim()}</p>`).join('');
+                    }
+                });
+                introContainer.innerHTML = introHtml;
+                console.log("DEBUG: Esetleírás betöltve.");
+            } else {
+                console.error("Hiba: 'case-introduction' elem nem található!");
+            }
+            // **** ÚJ SZEKCIÓ VÉGE ****
+
+            // Kérdések betöltése
+            const questionContainer = document.getElementById('anamnesis-questions');
+            allQuestions.forEach(q => {
+                questionContainer.innerHTML += `<label><input type="checkbox" name="question" value="${q.id}"> ${q.text}</label>`;
+            });
+
+            // Tesztek betöltése
+            const testContainer = document.getElementById('diagnostic-tests');
+            allTests.forEach(t => {
+                testContainer.innerHTML += `<label><input type="checkbox" name="test" value="${t.id}"> ${t.text}</label>`;
+            });
+
+            setupCheckboxLimits('question', 4, 'question-counter');
+            setupCheckboxLimits('test', 3, 'test-counter');
+
+            document.getElementById('max-score').textContent = MAX_POSSIBLE_SCORE;
+        }
+
+        function setupCheckboxLimits(name, limit, counterId) {
+            const checkboxes = document.getElementsByName(name);
+            const counterElement = document.getElementById(counterId);
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const checkedCount = document.querySelectorAll(`input[name="${name}"]:checked`).length;
+                    if (checkedCount > limit) {
+                        this.checked = false;
+                        alert(`Maximum ${limit} elemet választhat!`);
+                    } else {
+                        counterElement.textContent = `Kivál.: ${checkedCount}/${limit}`;
+                    }
+                });
+            });
+        }
+
+        // === 3. LÉPÉS: ALKALMAZÁS LOGIKA (Változatlan) ===
+
+        function handleAnamnesis() {
+            const selectedQuestions = document.querySelectorAll('input[name="question"]:checked');
+            if (selectedQuestions.length !== 4) {
+                alert("Kérjük, pontosan 4 kérdést válasszon!");
+                return;
+            }
+            const answersContent = document.getElementById('anamnesis-answers-content');
+            answersContent.innerHTML = "";
+            totalAnamnesisScore = 0; 
+            selectedQuestions.forEach(q => {
+                const questionData = allQuestions.find(item => item.id === q.value);
+                totalAnamnesisScore += questionData.points;
+                answersContent.innerHTML += `<p><strong>Kérdés:</strong> ${questionData.text}<br><strong>Válasz:</strong> ${questionData.answer} <em>(+${questionData.points} pont)</em></p>`;
+            });
+            document.getElementById('phase-anamnesis').classList.add('hidden');
+            document.getElementById('anamnesis-results').classList.remove('hidden');
+        }
+
+        function showTests() {
+            document.getElementById('anamnesis-results').classList.add('hidden');
+            document.getElementById('phase-tests').classList.remove('hidden');
+        }
+
+        function handleTests() {
+            const selectedTests = document.querySelectorAll('input[name="test"]:checked');
+            if (selectedTests.length !== 3) {
+                alert("Kérjük, pontosan 3 vizsgálatot válasszon!");
+                return;
+            }
+            const resultsContent = document.getElementById('test-results-content');
+            resultsContent.innerHTML = "";
+            totalTestScore = 0;
+            selectedTests.forEach(t => {
+                const testData = allTests.find(item => item.id === t.value);
+                totalTestScore += testData.points;
+                resultsContent.innerHTML += `<p><strong>Vizsgálat:</strong> ${testData.text}<br><strong>Eredmény:</strong> ${testData.result} <em>(+${testData.points} pont)</em></p>`;
+            });
+            document.getElementById('phase-tests').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+        }
+        
+        function showDiagnosis() {
+            document.getElementById('test-results').classList.add('hidden');
+            document.getElementById('phase-diagnosis').classList.remove('hidden');
+        }
+
+        // === 4. LÉPÉS: VÉGSŐ ÉRTÉKELÉS (AI HÍVÁSSAL) (Változatlan) ===
+        async function evaluateFinal() {
+            const diagnosisText = document.getElementById('diagnosis-input').value;
+            const therapyText = document.getElementById('therapy-input').value;
+            if (diagnosisText.trim() === "" || therapyText.trim() === "") {
+                alert("Kérjük, töltse ki a diagnózis és a terápia mezőket!");
+                return;
+            }
+
+            const evalButton = document.getElementById('btn-evaluate');
+            evalButton.disabled = true;
+            evalButton.textContent = "Értékelés folyamatban...";
+
+            document.getElementById('phase-diagnosis').classList.add('hidden');
+            document.getElementById('phase-evaluation').classList.remove('hidden');
+            document.getElementById('evaluation-loading').classList.remove('hidden');
+            document.getElementById('evaluation-content').classList.add('hidden');
+
+            try {
+                const diagnosisPromise = callGeminiScorer(diagnosisText, DIAGNOSIS_CRITERIA);
+                const therapyPromise = callGeminiScorer(therapyText, THERAPY_CRITERIA);
+                
+                diagnosisScore = (await diagnosisPromise).score;
+                therapyScore = (await therapyPromise).score;
+
+                if (diagnosisScore === undefined || therapyScore === undefined) {
+                    throw new Error("Az AI válasza nem tartalmazta a 'score' kulcsot.");
+                }
+
+                const totalScore = totalAnamnesisScore + totalTestScore + diagnosisScore + therapyScore;
+
+                // Részletes visszajelzés
+                const breakdownList = document.getElementById('evaluation-breakdown');
+                breakdownList.innerHTML = `
+                    <li>Anamnézis pontszám: <strong>${totalAnamnesisScore} pont</strong></li>
+                    <li>Vizsgálatok pontszám: <strong>${totalTestScore} pont</strong></li>
+                    <li>Diagnózis pontszám (AI): <strong>${diagnosisScore} pont</strong></li>
+                    <li>Terápia pontszám (AI): <strong>${therapyScore} pont</strong></li>
+                `;
+                
+                document.getElementById('score').textContent = totalScore;
+                document.getElementById('max-score').textContent = MAX_POSSIBLE_SCORE;
+                
+                let feedback = "";
+                if (totalScore > MAX_POSSIBLE_SCORE * 0.8) {
+                    feedback = "Kiváló munka!";
+                } else if (totalScore > MAX_POSSIBLE_SCORE * 0.5) {
+                    feedback = "Jó munka, de néhány ponton lehetne javítani.";
+                } else {
+                    feedback = "Van még hova fejlődni.";
+                }
+                document.getElementById('feedback-text').textContent = feedback;
+                
+            } catch (error) {
+                console.error("Hiba az AI hívásakor:", error);
+                document.getElementById('feedback-text').innerHTML = `<span style="color:red;">Hiba történt az AI értékelés során. (Hiba: ${error.message})</span>`;
+            } finally {
+                document.getElementById('evaluation-loading').classList.add('hidden');
+                document.getElementById('evaluation-content').classList.remove('hidden');
+                evalButton.disabled = false;
+                evalButton.textContent = "Végleges értékelés";
+            }
+        }
+
+        // AI hívó segédfüggvény (Változatlan)
+        async function callGeminiScorer(textToEvaluate, criteria) {
+            console.log("AI hívás indul...", { textToEvaluate, criteria });
+            const response = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ textToEvaluate, criteria })
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`Worker hiba: ${response.status} ${errorBody}`);
+            }
+
+            const data = await response.json();
+            console.log("AI válasz fogadva:", data);
+            return data;
+        }
+
+    </script>
+</body>
+</html>
