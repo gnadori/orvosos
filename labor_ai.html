@@ -8,346 +8,375 @@
     <style>
         /* --- STÍLUSOK (DESIGN) --- */
         :root {
-            --paper-bg: #ffffff;
-            --accent-green: #8cc63f;
-            --panel-bg: #2c3e50;
-            --text-light: #ecf0f1;
-            --success: #27ae60;
-            --danger: #c0392b;
-            --tooltip-bg: #222;
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #ecf0f1;
+            --card-bg: #ffffff;
+            --text: #333;
+            --radius: 12px;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         body {
-            background-color: #525659;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
         }
 
-        #game-container {
-            display: none;
-            gap: 20px;
+        .container {
             width: 100%;
-            max-width: 1400px;
-            height: 95vh;
-        }
-
-        /* --- BAL OLDAL: LELET --- */
-        .paper-sheet {
-            background: var(--paper-bg);
-            flex: 2;
-            padding: 40px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            overflow-y: auto;
-            position: relative;
-            border-radius: 2px;
-        }
-
-        .report-header {
-            border-top: 10px solid var(--accent-green);
-            margin-bottom: 20px;
-            padding-top: 10px;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
         }
 
-        .separator {
-            border-bottom: 1px dashed #000;
-            margin: 15px 0;
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
         }
 
-        table {
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .game-area {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Páciens kártya */
+        .patient-card {
+            background: #f8f9fa;
+            border-left: 5px solid var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .patient-info {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .symptoms {
+            font-style: italic;
+            color: #555;
+        }
+
+        /* Labor táblázat */
+        .lab-table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 10px;
             font-size: 0.95rem;
         }
 
-        th {
-            text-align: left;
-            border-bottom: 1px dashed #000;
-            padding-bottom: 5px;
-        }
-
-        td {
-            padding: 6px 0;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
-        }
-
-        tr:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        tr.selected {
-            background-color: #fffde7;
-        }
-
-        tr.correct {
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        tr.correct .col-flag::after {
-            content: "!";
-        }
-
-        tr.missed {
-            border: 1px solid var(--danger);
-        }
-
-        tr.missed .col-flag::after {
-            content: "M";
-            color: red;
-        }
-
-        tr.wrong {
-            text-decoration: line-through;
-            color: #95a5a6;
-        }
-
-        /* JAVÍTOTT TOOLTIP (Balra igazítva) */
-        .test-name {
-            position: relative;
-            cursor: help;
-            border-bottom: 1px dotted #999;
-            display: inline-block;
-        }
-
-        .test-name:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            background: var(--tooltip-bg);
-            color: white;
+        .lab-table th,
+        .lab-table td {
             padding: 12px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-family: 'Segoe UI', sans-serif;
-            width: 280px;
             text-align: left;
-            z-index: 10000;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            pointer-events: none;
-            white-space: normal;
-            line-height: 1.4;
-            margin-bottom: 8px;
+            border-bottom: 1px solid #ddd;
         }
 
-        .test-name:hover::before {
-            content: "";
-            position: absolute;
-            bottom: 100%;
-            left: 15px;
-            margin-bottom: 3px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: var(--tooltip-bg) transparent transparent transparent;
+        .lab-table th {
+            background-color: #f1f1f1;
+            color: #555;
         }
 
-        /* --- JOBB OLDAL: PANEL --- */
-        .control-panel {
-            flex: 1;
-            background: var(--panel-bg);
-            border-radius: 8px;
-            padding: 25px;
-            color: var(--text-light);
-            display: flex;
-            flex-direction: column;
-            font-family: 'Segoe UI', sans-serif;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        .lab-table tr:hover {
+            background-color: #f9f9f9;
         }
 
-        .difficulty-badge {
-            font-size: 0.75rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 2px 6px;
-            border-radius: 3px;
-            margin-left: 10px;
-            color: #333;
-            /* Hogy olvasható legyen a világos háttéren */
-        }
-
-        .btn {
-            background: var(--accent-green);
-            color: white;
-            border: none;
-            padding: 15px;
-            width: 100%;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: bold;
+        /* Interaktív sorok (Fázis 1) */
+        .lab-row {
             cursor: pointer;
-            margin-top: 10px;
             transition: background 0.2s;
         }
 
+        .lab-row.selected {
+            background-color: #d6eaf8 !important;
+            border-left: 4px solid var(--accent);
+        }
+
+        .lab-row.missed {
+            background-color: #fadbd8 !important;
+        }
+
+        /* Ha nem vette észre */
+        .lab-row.correct-choice {
+            background-color: #d4efdf !important;
+        }
+
+        /* Ha jót jelölt */
+
+        /* Gombok */
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            align-self: center;
+            display: block;
+            width: 200px;
+            margin: 20px auto 0;
+        }
+
         .btn:hover {
-            background: #7ab332;
+            background: #2980b9;
+            transform: scale(1.05);
         }
 
         .btn:disabled {
-            background: #95a5a6;
-            cursor: wait;
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Opciók (Fázis 2) */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
         }
 
         .option-btn {
             background: white;
-            color: #333;
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 4px;
+            border: 2px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
             cursor: pointer;
-            transition: transform 0.1s;
+            transition: all 0.2s;
+            font-weight: 600;
         }
 
         .option-btn:hover {
-            transform: translateX(5px);
+            border-color: var(--accent);
+            background: #f4faff;
         }
 
         .option-btn.correct {
-            background: var(--success);
+            background: #27ae60;
             color: white;
+            border-color: #27ae60;
         }
 
         .option-btn.wrong {
-            background: var(--danger);
+            background: #c0392b;
             color: white;
-            opacity: 0.7;
+            border-color: #c0392b;
         }
 
-        textarea {
+        /* AI Input (Fázis 3) */
+        .ai-input-area {
             width: 100%;
-            height: 120px;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            font-family: sans-serif;
-            resize: none;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
             box-sizing: border-box;
         }
 
-        #ai-feedback-box {
+        .ai-feedback {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
             margin-top: 15px;
             display: none;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 5px;
-            padding: 15px;
-            max-height: 300px;
-            overflow-y: auto;
+            animation: fadeIn 0.5s;
         }
 
-        #start-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #2c3e50;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-        .loader {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-            margin-right: 5px;
-        }
-
-        @keyframes spin {
             to {
-                transform: rotate(360deg);
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        #error-msg {
-            color: #e74c3c;
-            margin-top: 20px;
-            display: none;
+        /* Állapotjelzők */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .score-badge {
+            background: #f1c40f;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .phase-indicator {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        /* Tooltip (Normálértékekhez) */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted black;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
             text-align: center;
-            max-width: 600px;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div id="start-screen">
-        <h1 style="color: #8cc63f;">LABOR DIAGNOSZTA</h1>
-        <p>Adatok betöltése a <code>verkep_adatok.txt</code> fájlbúl...</p>
-        <button id="start-btn" class="btn" style="width: 200px; margin-top: 30px;" onclick="startGame()">JÁTÉK
-            INDÍTÁSA</button>
-        <div id="error-msg">
-            HIBA: Nem sikerült betölteni az adatfájlt.<br>
-            Ellenőrizd, hogy a <b>verkep_adatok.txt</b> ott van-e a HTML mellett,<br>
-            és hogy webszerveren (pl. Live Server) futtatod-e az oldalt!
-        </div>
-    </div>
+    <div class="container">
+        <header>
+            <h1>Labor Diagnoszta <span style="font-size:0.6em; vertical-align:top;">AI</span></h1>
+            <div class="subtitle">Elemezz. Diagnosztizálj. Tanulj.</div>
+        </header>
 
-    <div id="game-container">
-        <div class="paper-sheet">
-            <div class="report-header">
-                <div style="border:2px solid #8cc63f; color:#8cc63f; padding:5px; font-weight:bold;">✚ DUNALAB</div>
-                <div style="text-align:right; font-size:0.8rem; color:#7f8c8d;">Laboratóriumi<br>Lelet</div>
+        <div class="status-bar">
+            <div class="phase-indicator" id="phase-badge">FÁZIS 1: ÉSZLELÉS</div>
+            <div>Nehézség: <span id="diff-display" class="score-badge" style="background:#7f8c8d;">KEZDŐ</span></div>
+            <div>Pontszám: <span id="score-display" class="score-badge">0</span> XP</div>
+        </div>
+
+        <div class="game-area">
+
+            <!-- Páciens adatok -->
+            <div class="patient-card">
+                <div class="patient-info">
+                    <span id="p-name">Beteg Neve</span> (<span id="p-age">--</span> éves <span id="p-gender">--</span>)
+                </div>
+                <div class="symptoms">
+                    " <span id="p-symptoms">Tünetek leírása...</span> "
+                </div>
             </div>
-            <div>
-                <strong>Beteg:</strong> <span id="p-name">...</span><span id="diff-display" class="difficulty-badge"
-                    style="color:white;">KEZDŐ</span><br>
-                <strong>Panasz:</strong> <span id="p-symptoms" style="font-style:italic;">...</span>
+
+            <!-- Instrukció -->
+            <div style="text-align:center; font-weight:bold; color:var(--accent);" id="instruction-text">
+                Kattints azokra az értékekre, amelyek KÓROSAK (eltérnek a normálistól)!
             </div>
-            <div class="separator"></div>
-            <table>
+
+            <!-- Labor táblázat (Fázis 1) -->
+            <table class="lab-table" id="lab-table">
                 <thead>
                     <tr>
-                        <th style="width:35%">Vizsgálat</th>
-                        <th style="text-align:right">Eredmény</th>
-                        <th style="padding-left:10px">Egység</th>
-                        <th style="text-align:center">F</th>
-                        <th style="text-align:right">Referencia</th>
+                        <th>Vizsgálat</th>
+                        <th>Eredmény</th>
+                        <th>Egység</th>
+                        <th>Ref. Tartomány</th>
                     </tr>
                 </thead>
-                <tbody id="lab-table-body"></tbody>
+                <tbody id="lab-table-body">
+                    <!-- JS tölti fel -->
+                </tbody>
             </table>
-        </div>
 
-        <div class="control-panel">
-            <div
-                style="display:flex; justify-content:space-between; border-bottom:1px solid #465a6e; padding-bottom:15px; margin-bottom:20px;">
-                <span id="phase-badge"
-                    style="background:#8cc63f; padding:5px 10px; border-radius:4px; font-weight:bold;">FÁZIS 1</span>
-                <span>PONT: <strong id="score-display" style="color:#8cc63f;">0</strong></span>
+            <!-- Opciók (Fázis 2) -->
+            <div id="options-container" class="options-grid" style="display:none;">
+                <!-- JS gombok -->
             </div>
 
-            <div id="instruction-text"
-                style="background:rgba(255,255,255,0.1); padding:15px; border-left:4px solid #8cc63f; margin-bottom:20px;">
-                Keresd meg a leleten a kóros értékeket!
-            </div>
-
-            <div id="options-container" style="display:none;"></div>
-
+            <!-- AI Input (Fázis 3) -->
             <div id="ai-container" style="display:none;">
-                <textarea id="ai-input" placeholder="Írd le a diagnózist és az indoklást..."></textarea>
+                <textarea id="ai-input" class="ai-input-area"
+                    placeholder="Írd le a diagnózisodat és az indoklást... (pl. 'Szerintem vashiány, mert alacsony a vas és a hemoglobin is.')"></textarea>
             </div>
 
-            <button id="action-btn" class="btn" onclick="handleAction()">ELLENŐRZÉS</button>
-            <div id="local-feedback" style="margin-top:15px; font-weight:bold;"></div>
-            <div id="ai-feedback-box"></div>
-            <button id="next-btn" class="btn" style="background:#ecf0f1; color:#333; margin-top:auto; display:none;"
-                onclick="nextCase()">KÖVETKEZŐ ESET ➡️</button>
+            <!-- Visszajelzések -->
+            <div id="local-feedback" style="text-align:center; font-weight:bold; min-height:20px; color:#e74c3c;"></div>
+            <div id="ai-feedback-box" class="ai-feedback"></div>
+
+            <!-- Vezérlő gombok -->
+            <button id="action-btn" class="btn">ELLENŐRZÉS</button>
+            <button id="next-btn" class="btn" style="display:none; background:#27ae60;" onclick="nextCase()">KÖVETKEZŐ
+                ESET</button>
+
         </div>
     </div>
 
@@ -357,42 +386,25 @@
         const WORKER_URL = 'https://verkep.nadorig.workers.dev/';
 
         // --- ORVOSI SZÓTÁR (TOOLTIPS) ---
-        const labDefinitions = {
-            "Nátrium": "Folyadékháztartásért felelős ion.", "Kálium": "Szívműködéshez elengedhetetlen.",
-            "Glükóz": "Vércukorszint.", "Kreatinin": "Vesefunkció mutatója.", "Karbamid": "Fehérje-anyagcsere termék, vese választja ki.",
-            "GOT": "Májenzim (általános).", "GPT": "Májenzim (specifikus).",
-            "GGT": "Epeúti enzim (alkohol, epekő).", "ALP": "Epeút és csont enzim.",
-            "Bilirubin Direkt": "Epefesték (elzáródásnál nő).", "Bilirubin Össz": "Vörösvértest bomlástermék.",
-            "Fehérvérsejt": "Immunsejtek (gyulladásnál nő).", "Neutrofil": "Baktériumölő fehérvérsejt.",
-            "Limfocita": "Vírusölő fehérvérsejt.", "Hemoglobin": "Oxigénszállító (vérszegénység).",
-            "Vörösvértest": "Oxigénszállító sejt.", "CRP": "Gyulladásos fehérje.",
-            "Vas (Se-Fe)": "Vérképzéshez kell.", "MCV": "Vörösvértest mérete.",
-            "TSH": "Pajzsmirigy hormon.", "fT4": "Pajzsmirigy hormon.",
-            "Húgysav": "Purin anyagcsere (köszvény).", "Koleszterin": "Vérzsír.",
-            "Triglicerid": "Vérzsír.", "Amiláz": "Hasnyálmirigy enzim.", "Lipáz": "Hasnyálmirigy enzim.",
-            "CK (Kreatin-kináz)": "Izomenzim.", "LDH": "Sejtkárosodás jelző.",
-            "Vörösvérsejt süllyedés": "Gyulladásos jelző."
+        const labInfo = {
+            "Hemoglobin": "A vörösvértestek oxigénszállító molekulája. Alacsony szintje vérszegénységet (anémia) jelez.",
+            "Vörösvértest": "A vér oxigénszállító sejtjei. Számuk csökkenése vérszegénységre, növekedése (policitémia) sűrű vérre utal.",
+            "MCV": "A vörösvértestek átlagos térfogata. Alacsony = vashiány (kis sejtek), Magas = B12/Folsav hiány (nagy sejtek).",
+            "Fehérvérsejt": "Az immunrendszer sejtjei. Magas szintje (leukocitózis) fertőzést vagy gyulladást jelez.",
+            "Neutrofil": "A fehérvérsejtek egy típusa, főleg bakteriális fertőzések ellen harcol. Magas aránya baktériumra utal.",
+            "Limfocita": "A fehérvérsejtek egy típusa, főleg vírusok ellen harcol. Magas aránya vírusfertőzésre utal.",
+            "Trombocita": "Vérlemezkék, a véralvadásban játszanak szerepet. Alacsony szintje vérzékenységet okoz.",
+            "CRP": "C-reaktív protein. Gyulladásjelző fehérje. Magas szintje akut gyulladást (pl. tüdőgyulladás) jelez.",
+            "Vas (Se-Fe)": "A vér szérum vastartalma. Alacsony szintje vashiányra utal.",
+            "Glükóz": "Vércukorszint. Magas szintje cukorbetegségre (diabétesz) utal.",
+            "Kreatinin": "A vese kiválasztó funkciójának jelzője. Magas szintje veseelégtelenségre utal.",
+            "GOT (ASAT)": "Májenzim. Magas szintje májsejt-károsodást (pl. hepatitis, alkohol) jelez.",
+            "GPT (ALAT)": "Májenzim, specifikusabb a májra. Magas szintje májgyulladást jelez.",
+            "TSH": "Pajzsmirigy-stimuláló hormon. Magas = alulműködés, Alacsony = túlműködés.",
+            "Koleszterin": "Vérzsír. Magas szintje érelmeszesedés kockázatát növeli."
         };
 
-        // Normál értékek "zajnak" a listába
-        const standardParams = [
-            { name: "Nátrium", unit: "mmol/L", min: 135, max: 145 },
-            { name: "Kálium", unit: "mmol/L", min: 3.5, "max": 5.1 },
-            { name: "Glükóz", unit: "mmol/L", min: 3.9, "max": 6.0 },
-            { name: "Kreatinin", unit: "μmol/L", min: 60, "max": 105 },
-            { name: "GOT", unit: "U/L", min: 5, "max": 40 },
-            { name: "GPT", unit: "U/L", min: 5, "max": 41 },
-            { name: "Fehérvérsejt", unit: "G/L", min: 4.5, "max": 11.0 },
-            { name: "Hemoglobin", unit: "g/L", min: 130, "max": 160 },
-            { name: "CRP", unit: "mg/L", min: 0, "max": 5 }
-        ];
-
-        let gameCases = [];
-        let currentCaseIndex = 0;
-        let score = 0;
-        let phase = 1;
-
-        // --- BEÁGYAZOTT ADATOK (Hogy működjön szerver nélkül is) ---
+        // --- JÁTÉK ADATOK (BEÁGYAZVA) ---
         const embeddedData = [
             {
                 "id": "case_01",
@@ -451,102 +463,72 @@
             },
             {
                 "id": "case_04",
-                "difficulty": "Haladó",
-                "patient": {
-                    "name": "Kiss Éva",
-                    "age": 70,
-                    "gender": "Nő",
-                    "symptoms": "Lábvizesedés (ödéma), gyengeség, étvágytalanság. Ismert magas vérnyomás."
-                },
-                "lab_results": [
-                    { "name": "Karbamid", "value": 18.5, "unit": "mmol/L", "min": 2.8, "max": 7.2, "is_abnormal": true },
-                    { "name": "Kreatinin", "value": 250, "unit": "μmol/L", "min": 60, "max": 105, "is_abnormal": true },
-                    { "name": "Kálium", "value": 5.8, "unit": "mmol/L", "min": 3.5, "max": 5.1, "is_abnormal": true }
-                ],
-                "phase2_correct": "Kiválasztó rendszer (Vese)",
-                "phase3_correct": "Veseelégtelenség",
-                "explanation": "A magas karbamid és kreatinin a vese szűrőfunkciójának súlyos romlását jelzi."
-            },
-            {
-                "id": "case_06",
                 "difficulty": "Közepes",
                 "patient": {
-                    "name": "Kelemen Géza",
-                    "age": 50,
-                    "gender": "Férfi",
-                    "symptoms": "Nincs specifikus panasz, esetleg enyhe hasi diszkomfort. Rendszeres alkoholfogyasztó."
+                    "name": "Szabó Anna",
+                    "age": 28,
+                    "gender": "Nő",
+                    "symptoms": "Hirtelen hízás, állandó fázékonyság, lassú szívverés, száraz bőr."
                 },
                 "lab_results": [
-                    { "name": "GGT", "value": 350, "unit": "U/L", "min": 8, "max": 50, "is_abnormal": true },
-                    { "name": "GOT", "value": 65, "unit": "U/L", "min": 5, "max": 40, "is_abnormal": true },
-                    { "name": "MCV", "value": 105, "unit": "fL", "min": 80, "max": 99, "is_abnormal": true }
+                    { "name": "TSH", "value": 12.5, "unit": "mIU/L", "min": 0.4, "max": 4.0, "is_abnormal": true },
+                    { "name": "Szabad T4", "value": 8.0, "unit": "pmol/L", "min": 12.0, "max": 22.0, "is_abnormal": true },
+                    { "name": "Koleszterin", "value": 6.2, "unit": "mmol/L", "min": 2.0, "max": 5.2, "is_abnormal": true }
                 ],
-                "phase2_correct": "Májfunkció / Toxikus ártalom",
-                "phase3_correct": "Alkoholos májkárosodás",
-                "explanation": "A GGT izolált, kiugró emelkedése, enyhe GOT emelkedéssel és a megnagyobbodott vörösvértestekkel (magas MCV) tipikus alkohol okozta ártalomra."
+                "phase2_correct": "Hormonális rendszer",
+                "phase3_correct": "Pajzsmirigy alulműködés (Hypothyreosis)",
+                "explanation": "A magas TSH szint azt jelzi, hogy az agyalapi mirigy próbálja serkenteni a pajzsmirigyet, de az alacsony T4 szint mutatja, hogy a pajzsmirigy nem termel elég hormont."
             },
             {
-                "id": "case_10",
+                "id": "case_05",
                 "difficulty": "Haladó",
                 "patient": {
-                    "name": "Sipos Gábor",
-                    "age": 52,
+                    "name": "Tóth Gábor",
+                    "age": 45,
                     "gender": "Férfi",
-                    "symptoms": "Jobb bordaív alatti görcsös fájdalom, sárgás szemfehérje, sötét vizelet."
+                    "symptoms": "Jobb bordaív alatti fájdalom, sárgás szemfehérje, sötét vizelet."
                 },
                 "lab_results": [
-                    { "name": "Bilirubin Direkt", "value": 62.0, "unit": "μmol/L", "min": 0, "max": 5, "is_abnormal": true },
-                    { "name": "GGT", "value": 210, "unit": "U/L", "min": 8, "max": 50, "is_abnormal": true },
-                    { "name": "ALP", "value": 450, "unit": "U/L", "min": 40, "max": 129, "is_abnormal": true }
+                    { "name": "GOT (ASAT)", "value": 150, "unit": "U/L", "min": 0, "max": 40, "is_abnormal": true },
+                    { "name": "GPT (ALAT)", "value": 180, "unit": "U/L", "min": 0, "max": 41, "is_abnormal": true },
+                    { "name": "GGT", "value": 210, "unit": "U/L", "min": 0, "max": 60, "is_abnormal": true },
+                    { "name": "Bilirubin", "value": 45, "unit": "μmol/L", "min": 0, "max": 17, "is_abnormal": true }
                 ],
-                "phase2_correct": "Epeelvezető rendszer",
-                "phase3_correct": "Epeúti elzáródás (pl. epekő)",
-                "explanation": "A direkt bilirubin dominanciája, valamint a GGT és ALP (kolesztatikus enzimek) jelentős emelkedése az epeelfolyás akadályozottságára utal."
+                "phase2_correct": "Májfunkció / Toxikus ártalom",
+                "phase3_correct": "Akut májgyulladás (Hepatitis) vagy alkoholos májkárosodás",
+                "explanation": "A májenzimek (GOT, GPT, GGT) jelentős emelkedése májsejt-pusztulásra utal. A magas bilirubin okozza a sárgaságot."
             }
         ];
 
-        // --- ADATBETÖLTÉS ÉS INDÍTÁS ---
+        // --- JÁTÉK LOGIKA ---
+        let gameCases = [];
+        let currentCaseIndex = 0;
+        let score = 0;
+        let phase = 1; // 1: Észlelés, 2: Rendszer, 3: Diagnózis
+        let selectedParams = new Set(); // Fázis 1-ben kiválasztott elemek
+
+        // Normálértékek generálása (kitöltő adatokhoz)
+        const standardParams = [
+            { name: "Nátrium", unit: "mmol/L", min: 135, max: 145 },
+            { name: "Kálium", unit: "mmol/L", min: 3.5, max: 5.1 },
+            { name: "Klorid", unit: "mmol/L", min: 98, max: 107 },
+            { name: "Kreatinin", unit: "μmol/L", min: 50, max: 120 },
+            { name: "Karbamid", unit: "mmol/L", min: 2.5, max: 7.5 },
+            { name: "Húgysav", unit: "μmol/L", min: 200, max: 420 },
+            { name: "Összfehérje", unit: "g/L", min: 66, max: 87 },
+            { name: "Albumin", unit: "g/L", min: 35, max: 52 }
+        ];
+
         async function startGame() {
-            const btn = document.getElementById('start-btn');
-            const errorMsg = document.getElementById('error-msg');
-
-            btn.innerText = "TÖLTÉS...";
-            btn.disabled = true;
-
             try {
                 // Közvetlenül a beágyazott adatokat használjuk
                 const rawData = embeddedData;
-
-                // Feldolgozás és rendezés nehézség szerint
-                processCases(rawData);
-
-                // UI váltás
-                document.getElementById('start-screen').style.display = 'none';
-                document.getElementById('game-container').style.display = 'flex';
+                gameCases = rawData;
                 loadCase(0);
-
             } catch (error) {
+                alert("Hiba az adatok betöltésekor: " + error);
                 console.error(error);
-                btn.style.display = 'none';
-                errorMsg.style.display = 'block';
-                errorMsg.innerHTML += `<br><small>(${error.message})</small>`;
             }
-        }
-
-        function processCases(data) {
-            // Nehézségi szintek szétválogatása és keverése
-            const levels = { "Kezdő": 1, "Közepes": 2, "Haladó": 3, "Szakértő": 4 };
-
-            // Hozzáadjuk a numerikus nehézséget, ha nincs
-            data.forEach(c => c.numericDifficulty = levels[c.difficulty] || 1);
-
-            const easy = data.filter(c => c.difficulty === "Kezdő").sort(() => Math.random() - 0.5);
-            const medium = data.filter(c => c.difficulty === "Közepes").sort(() => Math.random() - 0.5);
-            const hard = data.filter(c => c.difficulty === "Haladó").sort(() => Math.random() - 0.5);
-            const expert = data.filter(c => c.difficulty === "Szakértő").sort(() => Math.random() - 0.5);
-
-            // Progresszív lista összeállítása
-            gameCases = [...easy, ...medium, ...hard, ...expert];
         }
 
         function loadCase(index) {
@@ -567,6 +549,7 @@
             document.getElementById('local-feedback').innerText = "";
             document.getElementById('ai-feedback-box').style.display = "none";
             document.getElementById('next-btn').style.display = "none";
+
             const actBtn = document.getElementById('action-btn');
             actBtn.style.display = "block";
             actBtn.disabled = false; // FONTOS: Újra engedélyezzük!
@@ -602,46 +585,85 @@
             displayList.sort(() => Math.random() - 0.5);
 
             displayList.forEach(item => {
-                const tr = document.createElement('tr');
-                // Figyeljünk, hogy a JSON-ben "is_abnormal" van
+                let tr = document.createElement('tr');
+                tr.className = "lab-row";
+                tr.dataset.name = item.name;
                 tr.dataset.abnormal = item.is_abnormal;
-                tr.onclick = function () { if (phase === 1) this.classList.toggle('selected'); };
 
-                const tooltipText = labDefinitions[item.name] || "Nincs leírás.";
+                // Tooltip hozzáadása a névhez
+                let nameHtml = item.name;
+                if (labInfo[item.name]) {
+                    nameHtml = `<div class="tooltip">${item.name}<span class="tooltiptext">${labInfo[item.name]}</span></div>`;
+                }
 
                 tr.innerHTML = `
-                <td><span class="test-name" data-tooltip="${tooltipText}">${item.name}</span></td>
-                <td style="text-align:right; font-weight:bold; padding-right:15px;">${item.value}</td>
-                <td style="padding-left:10px;">${item.unit}</td>
-                <td class="col-flag"></td>
-                <td style="text-align:right;">${item.min} - ${item.max}</td>
-            `;
+                    <td>${nameHtml}</td>
+                    <td><strong>${item.value}</strong></td>
+                    <td>${item.unit}</td>
+                    <td>${item.min} - ${item.max}</td>
+                `;
+                tr.onclick = function () { toggleSelection(this); };
                 tbody.appendChild(tr);
             });
+            selectedParams.clear();
+        }
+
+        function toggleSelection(row) {
+            if (phase !== 1) return;
+            if (row.classList.contains('selected')) {
+                row.classList.remove('selected');
+                selectedParams.delete(row.dataset.name);
+            } else {
+                row.classList.add('selected');
+                selectedParams.add(row.dataset.name);
+            }
         }
 
         function checkPhase1() {
-            let error = false;
-            document.querySelectorAll('#lab-table-body tr').forEach(tr => {
-                const isAb = tr.dataset.abnormal === "true";
-                const isSel = tr.classList.contains('selected');
-                if (isAb && isSel) { tr.className = 'correct'; tr.classList.remove('selected'); }
-                else if (isAb && !isSel) { tr.className = 'missed'; error = true; }
-                else if (!isAb && isSel) { tr.className = 'wrong'; tr.classList.remove('selected'); error = true; }
+            const rows = document.querySelectorAll('.lab-row');
+            let mistakes = 0;
+            let found = 0;
+            let totalAbnormal = 0;
+
+            rows.forEach(row => {
+                const isAbnormal = row.dataset.abnormal === "true";
+                const isSelected = row.classList.contains('selected');
+
+                if (isAbnormal) totalAbnormal++;
+
+                if (isAbnormal && isSelected) {
+                    row.classList.add('correct-choice'); // Zöld
+                    found++;
+                } else if (!isAbnormal && isSelected) {
+                    row.classList.add('missed'); // Piros (téves riasztás)
+                    mistakes++;
+                } else if (isAbnormal && !isSelected) {
+                    row.style.border = "2px solid red"; // Hiányzó
+                    mistakes++;
+                }
             });
 
-            const fb = document.getElementById('local-feedback');
-            if (!error) {
-                score += 10; updateScore(); fb.innerText = "✔ Helyes!"; fb.style.color = "#27ae60";
+            if (mistakes === 0 && found === totalAbnormal) {
+                score += 10; updateScore();
+                document.getElementById('local-feedback').innerText = "Helyes! Minden kóros értéket megtaláltál.";
+                document.getElementById('local-feedback').style.color = "#27ae60";
                 setTimeout(setupPhase2, 1000);
-            } else { fb.innerText = "⚠️ Javítsd a hibákat!"; fb.style.color = "#c0392b"; }
+            } else {
+                document.getElementById('local-feedback').innerText = `Nem tökéletes. Megtalált: ${found}/${totalAbnormal}, Hiba: ${mistakes}. Próbáld újra!`;
+                setTimeout(() => {
+                    // Resetelés, hogy újra próbálhassa (opcionális, most tovább engedjük büntetéssel)
+                    // De a játékmenet szerint menjünk tovább a 2. fázisra kis késleltetéssel
+                    setupPhase2();
+                }, 2000);
+            }
         }
 
         // --- FÁZIS 2: RENDSZER ---
         function setupPhase2() {
             phase = 2;
             document.getElementById('phase-badge').innerText = "FÁZIS 2: RENDSZER";
-            document.getElementById('instruction-text').innerText = "Melyik rendszer érintett?";
+            document.getElementById('instruction-text').innerText = "Melyik szervrendszer érintett?";
+            document.getElementById('lab-table').style.opacity = "0.5"; // Halványítjuk a táblázatot
             document.getElementById('action-btn').style.display = "none";
             document.getElementById('local-feedback').innerText = "";
 
@@ -735,7 +757,9 @@
                 btn.style.display = "none"; document.getElementById('next-btn').style.display = "block";
 
             } catch (e) {
-                console.error(e); alert("Hiba a szerverrel! Ellenőrizd a konzolt."); btn.disabled = false; btn.innerText = "ÚJRA";
+                console.error(e);
+                alert("Hiba történt: " + e.message);
+                btn.disabled = false; btn.innerText = "ÚJRA";
             }
         }
 
@@ -744,6 +768,9 @@
             if (currentCaseIndex < gameCases.length - 1) loadCase(currentCaseIndex + 1);
             else { alert("Vége a játéknak! Pontszám: " + score); location.reload(); }
         }
+
+        // Indítás
+        startGame();
 
     </script>
 </body>
