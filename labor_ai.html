@@ -315,4 +315,168 @@
         document.getElementById('options-container').style.display = "none";
         document.getElementById('ai-container').style.display = "none";
         document.getElementById('action-btn').innerText = "ELLENŐRZÉS";
-        document.getElementById('action-btn').onclick = check
+        document.getElementById('action-btn').onclick = checkPhase1;
+
+        const tbody = document.getElementById('lab-table-body');
+        tbody.innerHTML = "";
+
+        let displayList = [...c.results];
+        const used = new Set(displayList.map(i=>i.name));
+        for(let p of standardParams) {
+            if(!used.has(p.name) && displayList.length < 10) {
+                let val = (Math.random() * (p.max - p.min) + p.min).toFixed(1);
+                displayList.push({ name: p.name, value: val, unit: p.unit, min: p.min, max: p.max, is_abnormal: false });
+            }
+        }
+        displayList.sort(()=>Math.random()-0.5);
+
+        displayList.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.dataset.abnormal = item.is_abnormal;
+            tr.onclick = function() { if(phase===1) this.classList.toggle('selected'); };
+            
+            // JAVÍTOTT TOOLTIP: Balra igazítás
+            const tooltipText = labDefinitions[item.name] || "Nincs leírás.";
+            
+            tr.innerHTML = `
+                <td><span class="test-name" data-tooltip="${tooltipText}">${item.name}</span></td>
+                <td style="text-align:right; font-weight:bold; padding-right:15px;">${item.value}</td>
+                <td style="padding-left:10px;">${item.unit}</td>
+                <td class="col-flag"></td>
+                <td style="text-align:right;">${item.min} - ${item.max}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function checkPhase1() {
+        let error = false;
+        document.querySelectorAll('#lab-table-body tr').forEach(tr => {
+            const isAb = tr.dataset.abnormal === "true";
+            const isSel = tr.classList.contains('selected');
+            if(isAb && isSel) { tr.className = 'correct'; tr.classList.remove('selected'); }
+            else if(isAb && !isSel) { tr.className = 'missed'; error=true; }
+            else if(!isAb && isSel) { tr.className = 'wrong'; tr.classList.remove('selected'); error=true; }
+        });
+
+        const fb = document.getElementById('local-feedback');
+        if(!error) {
+            score+=10; updateScore();
+            fb.innerText = "✔ Helyes! Jöhet a diagnosztika."; fb.style.color = "#27ae60";
+            setTimeout(setupPhase2, 1000);
+        } else {
+            fb.innerText = "⚠️ Hiba! (M = Kihagyott érték)"; fb.style.color = "#c0392b";
+        }
+    }
+
+    // --- FÁZIS 2: RENDSZER ---
+    function setupPhase2() {
+        phase = 2;
+        document.getElementById('phase-badge').innerText = "FÁZIS 2: RENDSZER";
+        document.getElementById('instruction-text').innerText = "Melyik rendszer érintett?";
+        document.getElementById('action-btn').style.display = "none";
+        document.getElementById('local-feedback').innerText = "";
+
+        const cont = document.getElementById('options-container');
+        cont.style.display = "block"; cont.innerHTML = "";
+        
+        const correct = cases[currentCaseIndex].correctSystem;
+        const opts = [correct, "Májfunkció", "Vese kiválasztás", "Hormonrendszer"].sort(()=>Math.random()-0.5);
+        
+        opts.forEach(opt => {
+            let btn = document.createElement('div');
+            btn.className = "option-btn"; btn.innerText = opt;
+            btn.onclick = function() {
+                if(opt===correct) {
+                    this.classList.add('correct'); score+=10; updateScore();
+                    setTimeout(setupPhase3, 800);
+                } else this.classList.add('wrong');
+            };
+            cont.appendChild(btn);
+        });
+    }
+
+    // --- FÁZIS 3: AI DIAGNÓZIS (WORKER-REL) ---
+    function setupPhase3() {
+        phase = 3;
+        document.getElementById('phase-badge').innerText = "FÁZIS 3: DIAGNÓZIS";
+        document.getElementById('instruction-text').innerText = "Mi a diagnózis? Indokold meg!";
+        document.getElementById('options-container').style.display = "none";
+        document.getElementById('ai-container').style.display = "block";
+        document.getElementById('ai-input').value = "";
+        
+        const btn = document.getElementById('action-btn');
+        btn.style.display = "block"; btn.innerText = "KIÉRTÉKELÉS"; btn.disabled = false;
+        btn.onclick = callWorker;
+    }
+
+    async function callWorker() {
+        const text = document.getElementById('ai-input').value;
+        if(text.length < 5) { alert("Írj bővebb választ!"); return; }
+
+        const btn = document.getElementById('action-btn');
+        btn.innerHTML = '<div class="loader"></div> Értékelés...'; btn.disabled = true;
+
+        const curr = cases[currentCaseIndex];
+
+        // --- ADATKÜLDÉS A WORKERNEK ---
+        // Csak a diák válaszát és a helyes megoldást küldjük.
+        // A prompt összerakását a Worker végzi (biztonságosabb).
+        
+        const payload = {
+            textToEvaluate: text,
+            criteria: {
+                correctDiag: curr.correctDiag,
+                correctExpl: curr.explanation
+            }
+        };
+
+        try {
+            const resp = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            
+            if(!resp.ok) throw new Error("Worker Hiba");
+            const data = await resp.json();
+            
+            // Ha a Worker valamiért nem küldene szöveget
+            let expl = data.explanation || `Pontszám: ${data.score}. (Helyes: ${curr.correctDiag})`;
+            
+            score += (data.score || 0); updateScore();
+            
+            const box = document.getElementById('ai-feedback-box');
+            box.style.display = "block";
+            
+            const color = data.score > 35 ? "#27ae60" : (data.score > 20 ? "#f39c12" : "#c0392b");
+            box.innerHTML = `
+                <div style="border-left:5px solid ${color}; padding-left:15px;">
+                    <h3 style="color:${color}; margin:0 0 10px 0;">Professzor értékelése: ${data.score}/50</h3>
+                    <div style="line-height:1.6; color:#fff;">${expl.replace(/\n/g, '<br>')}</div>
+                    <div style="margin-top:15px; border-top:1px solid #555; padding-top:10px; font-size:0.9rem; color:#aaa;">
+                        Helyes megoldás: <strong>${curr.correctDiag}</strong>
+                    </div>
+                </div>
+            `;
+            
+            btn.style.display = "none";
+            document.getElementById('next-btn').style.display = "block";
+
+        } catch(e) {
+            console.error(e); 
+            alert("Hiba a szerverrel! Ellenőrizd a Worker URL-t."); 
+            btn.disabled = false; 
+            btn.innerText = "ÚJRA";
+        }
+    }
+
+    function updateScore() { document.getElementById('score-display').innerText = score; }
+    function nextCase() { 
+        if(currentCaseIndex < cases.length-1) loadCase(currentCaseIndex+1);
+        else { alert("Vége a játéknak! Pontszám: " + score); location.reload(); }
+    }
+
+</script>
+</body>
+</html>
