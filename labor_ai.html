@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labor Diagnoszta - Teljes Verzió (v1.5)</title>
+    <title>Labor Diagnoszta - Teljes Verzió (v1.6)</title>
     <style>
         /* --- STÍLUSOK (DESIGN) --- */
         :root {
@@ -30,7 +30,8 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 1200px;
+            /* Megnövelve a szélesebb nézethez */
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
@@ -61,6 +62,26 @@
         .game-area {
             padding: 20px;
             flex-grow: 1;
+            /* 2-oszlopos Grid Layout */
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .main-content {
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -70,39 +91,68 @@
         .patient-card {
             background: #f8f9fa;
             border-left: 5px solid var(--accent);
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
         .patient-info {
             font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
         }
 
         .symptoms {
             font-style: italic;
             color: #555;
+            line-height: 1.5;
         }
 
-        /* Labor táblázat */
+        /* Utasítás doboz */
+        .instruction-box {
+            background: #e8f6f3;
+            border: 1px solid #d1f2eb;
+            color: #16a085;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Labor táblázat - "Printout" stílus */
         .lab-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
             font-size: 0.95rem;
+            font-family: 'Courier New', Courier, monospace;
+            /* Írógép stílus */
+            background: #fff;
+            border: 2px solid #555;
+            box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
         }
 
         .lab-table th,
         .lab-table td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
         }
 
         .lab-table th {
-            background-color: #f1f1f1;
-            color: #555;
+            background-color: #eee;
+            color: #000;
+            border-bottom: 2px solid #555;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .lab-table td {
+            border-bottom: 1px dashed #aaa;
+            /* Szaggatott vonal */
+        }
+
+        .lab-table tr:last-child td {
+            border-bottom: none;
         }
 
         .lab-table tr:hover {
@@ -117,19 +167,15 @@
 
         .lab-row.selected {
             background-color: #d6eaf8 !important;
-            border-left: 4px solid var(--accent);
         }
 
         .lab-row.missed {
             background-color: #fadbd8 !important;
         }
 
-        /* Ha nem vette észre */
         .lab-row.correct-choice {
             background-color: #d4efdf !important;
         }
-
-        /* Ha jót jelölt */
 
         /* Gombok */
         .btn {
@@ -143,8 +189,11 @@
             transition: transform 0.1s, background 0.2s;
             align-self: center;
             display: block;
-            width: 200px;
-            margin: 20px auto 0;
+            width: 250px;
+            margin: 10px auto;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn:hover {
@@ -163,7 +212,6 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-top: 15px;
         }
 
         .option-btn {
@@ -203,7 +251,7 @@
             font-family: inherit;
             font-size: 1rem;
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
             box-sizing: border-box;
         }
 
@@ -212,7 +260,6 @@
             color: #ecf0f1;
             padding: 20px;
             border-radius: 8px;
-            margin-top: 15px;
             display: none;
             animation: fadeIn 0.5s;
         }
@@ -234,22 +281,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #eee;
+            padding: 15px 30px;
+            background: #fff;
+            border-bottom: 2px solid #f0f0f0;
         }
 
         .score-badge {
             background: #f1c40f;
             color: #fff;
-            padding: 5px 12px;
+            padding: 5px 15px;
             border-radius: 20px;
             font-weight: bold;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .phase-indicator {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #7f8c8d;
@@ -260,31 +307,45 @@
         .tooltip {
             position: relative;
             display: inline-block;
-            border-bottom: 1px dotted black;
+            border-bottom: 1px dotted #555;
             cursor: help;
         }
 
         .tooltip .tooltiptext {
             visibility: hidden;
-            width: 200px;
-            background-color: #555;
+            width: 220px;
+            background-color: #333;
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 5px;
+            padding: 8px;
             position: absolute;
-            z-index: 1;
-            bottom: 125%;
+            z-index: 10;
+            bottom: 130%;
             left: 50%;
-            margin-left: -100px;
+            margin-left: -110px;
             opacity: 0;
             transition: opacity 0.3s;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            font-family: 'Segoe UI', sans-serif;
+            /* Tooltip maradjon olvasható */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .tooltip:hover .tooltiptext {
             visibility: visible;
             opacity: 1;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
         }
 
         .loader {
@@ -327,55 +388,65 @@
 
         <div class="game-area">
 
-            <!-- Páciens adatok -->
-            <div class="patient-card">
-                <div class="patient-info">
-                    <span id="p-name">Beteg Neve</span> (<span id="p-age">--</span> éves <span id="p-gender">--</span>)
+            <!-- BAL OSZLOP: Információk -->
+            <div class="sidebar">
+                <!-- Páciens adatok -->
+                <div class="patient-card">
+                    <div class="patient-info">
+                        <span id="p-name">Beteg Neve</span><br>
+                        <span style="font-size:0.9em; font-weight:normal; color:#555;">
+                            <span id="p-age">--</span> éves, <span id="p-gender">--</span>
+                        </span>
+                    </div>
+                    <div class="symptoms">
+                        " <span id="p-symptoms">Tünetek leírása...</span> "
+                    </div>
                 </div>
-                <div class="symptoms">
-                    " <span id="p-symptoms">Tünetek leírása...</span> "
+
+                <!-- Instrukció -->
+                <div class="instruction-box" id="instruction-text">
+                    Kattints azokra az értékekre, amelyek KÓROSAK (eltérnek a normálistól)!
                 </div>
             </div>
 
-            <!-- Instrukció -->
-            <div style="text-align:center; font-weight:bold; color:var(--accent);" id="instruction-text">
-                Kattints azokra az értékekre, amelyek KÓROSAK (eltérnek a normálistól)!
+            <!-- JOBB OSZLOP: Tartalom -->
+            <div class="main-content">
+                <!-- Labor táblázat (Fázis 1) -->
+                <table class="lab-table" id="lab-table">
+                    <thead>
+                        <tr>
+                            <th>Vizsgálat</th>
+                            <th>Eredmény</th>
+                            <th>Egység</th>
+                            <th>Ref. Tartomány</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lab-table-body">
+                        <!-- JS tölti fel -->
+                    </tbody>
+                </table>
+
+                <!-- Opciók (Fázis 2) -->
+                <div id="options-container" class="options-grid" style="display:none;">
+                    <!-- JS gombok -->
+                </div>
+
+                <!-- AI Input (Fázis 3) -->
+                <div id="ai-container" style="display:none;">
+                    <textarea id="ai-input" class="ai-input-area"
+                        placeholder="Írd le a diagnózisodat és az indoklást... (pl. 'Szerintem vashiány, mert alacsony a vas és a hemoglobin is.')"></textarea>
+                </div>
+
+                <!-- Visszajelzések -->
+                <div id="local-feedback" style="text-align:center; font-weight:bold; min-height:20px; color:#e74c3c;">
+                </div>
+                <div id="ai-feedback-box" class="ai-feedback"></div>
+
+                <!-- Vezérlő gombok -->
+                <button id="action-btn" class="btn">ELLENŐRZÉS</button>
+                <button id="next-btn" class="btn" style="display:none; background:#27ae60;"
+                    onclick="nextCase()">KÖVETKEZŐ ESET</button>
             </div>
-
-            <!-- Labor táblázat (Fázis 1) -->
-            <table class="lab-table" id="lab-table">
-                <thead>
-                    <tr>
-                        <th>Vizsgálat</th>
-                        <th>Eredmény</th>
-                        <th>Egység</th>
-                        <th>Ref. Tartomány</th>
-                    </tr>
-                </thead>
-                <tbody id="lab-table-body">
-                    <!-- JS tölti fel -->
-                </tbody>
-            </table>
-
-            <!-- Opciók (Fázis 2) -->
-            <div id="options-container" class="options-grid" style="display:none;">
-                <!-- JS gombok -->
-            </div>
-
-            <!-- AI Input (Fázis 3) -->
-            <div id="ai-container" style="display:none;">
-                <textarea id="ai-input" class="ai-input-area"
-                    placeholder="Írd le a diagnózisodat és az indoklást... (pl. 'Szerintem vashiány, mert alacsony a vas és a hemoglobin is.')"></textarea>
-            </div>
-
-            <!-- Visszajelzések -->
-            <div id="local-feedback" style="text-align:center; font-weight:bold; min-height:20px; color:#e74c3c;"></div>
-            <div id="ai-feedback-box" class="ai-feedback"></div>
-
-            <!-- Vezérlő gombok -->
-            <button id="action-btn" class="btn">ELLENŐRZÉS</button>
-            <button id="next-btn" class="btn" style="display:none; background:#27ae60;" onclick="nextCase()">KÖVETKEZŐ
-                ESET</button>
 
         </div>
     </div>
@@ -537,6 +608,8 @@
             phase = 1;
 
             document.getElementById('p-name').innerText = c.patient.name;
+            document.getElementById('p-age').innerText = c.patient.age;
+            document.getElementById('p-gender').innerText = c.patient.gender;
             document.getElementById('p-symptoms').innerText = c.patient.symptoms;
 
             // Nehézség jelzése
