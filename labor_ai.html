@@ -225,4 +225,308 @@
 <script>
     // --- KONFIGURÁCIÓ ---
     // A megadott worker URL. Fontos: ennek elérhetőnek kell lennie!
-    const WORKER_URL = '
+    const WORKER_URL = 'https://orvosolas.nadorig.workers.dev'; 
+
+    // --- ADATBÁZIS (Normál értékek + Esetek) ---
+    const standardParams = [
+        { name: "Nátrium", unit: "mmol/L", min: 135, max: 145 },
+        { name: "Kálium", unit: "mmol/L", min: 3.5, "max": 5.1 },
+        { name: "Glükóz", unit: "mmol/L", min: 3.9, "max": 6.0 },
+        { name: "Kreatinin", unit: "μmol/L", min: 60, "max": 105 },
+        { name: "GOT", unit: "U/L", min: 5, "max": 40 },
+        { name: "GPT", unit: "U/L", min: 5, "max": 41 },
+        { name: "Fehérvérsejt", unit: "Giga/L", min: 4.5, "max": 11.0 },
+        { name: "Hemoglobin", unit: "g/L", min: 130, "max": 170 },
+        { name: "CRP", unit: "mg/L", min: 0, "max": 5 }
+    ];
+
+    const casesData = [
+         {
+            "id": "case_01", 
+            "patient": { "name": "Kovács Júlia", "age": 34, "gender": "Nő", "symptoms": "Erős fáradékonyság, hajhullás, sápadt bőr." },
+            "lab_results": [
+              { "name": "Hemoglobin", "value": 98, "unit": "g/L", "min": 120, "max": 160, "is_abnormal": true },
+              { "name": "Vas (Se-Fe)", "value": 5.2, "unit": "μmol/L", "min": 10.0, "max": 28.0, "is_abnormal": true }
+            ],
+            "phase2_correct": "Vérképzés / Vasanyagcsere zavara",
+            "phase3_correct": "Vashiányos vérszegénység",
+            "explanation": "Az alacsony hemoglobin és szérum vas szintje egyértelműen vashiányos anémiára utal."
+        },
+        {
+            "id": "case_02",
+            "patient": { "name": "Nagy Péter", "age": 62, "gender": "Férfi", "symptoms": "Magas láz, köhögés, mellkasi fájdalom." },
+            "lab_results": [
+              { "name": "Fehérvérsejt", "value": 18.5, "unit": "Giga/L", "min": 4.5, "max": 11.0, "is_abnormal": true },
+              { "name": "CRP", "value": 120.0, "unit": "mg/L", "min": 0.0, "max": 5.0, "is_abnormal": true }
+            ],
+            "phase2_correct": "Immunrendszer / Gyulladás",
+            "phase3_correct": "Bakteriális fertőzés (pl. tüdőgyulladás)",
+            "explanation": "A magas fehérvérsejtszám és a jelentősen emelkedett CRP bakteriális fertőzést jelez."
+        },
+        {
+            "id": "case_03",
+            "patient": { "name": "Sipos Gábor", "age": 52, "gender": "Férfi", "symptoms": "Görcsös hasi fájdalom, sárgaság." },
+            "lab_results": [
+              { "name": "Bilirubin Direkt", "value": 62.0, "unit": "μmol/L", "min": 0, "max": 5, "is_abnormal": true },
+              { "name": "GGT", "value": 210, "unit": "U/L", "min": 8, "max": 50, "is_abnormal": true }
+            ],
+            "phase2_correct": "Epeelvezető rendszer",
+            "phase3_correct": "Epeúti elzáródás (Epekő)",
+            "explanation": "A direkt bilirubin és a GGT emelkedése epeelfolyási akadályra utal."
+        }
+    ];
+
+    let gameState = {
+        cases: [],
+        currentCaseIndex: 0,
+        score: 0,
+        phase: 1
+    };
+
+    function startGame() {
+        // Másolat készítése és keverés (itt most sorban hagyjuk egyszerűség kedvéért)
+        gameState.cases = JSON.parse(JSON.stringify(casesData));
+        gameState.currentCaseIndex = 0;
+        gameState.score = 0;
+        
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'flex';
+        loadCase();
+    }
+
+    function loadCase() {
+        const currentCase = gameState.cases[gameState.currentCaseIndex];
+        gameState.phase = 1;
+
+        // UI Reset
+        document.getElementById('case-counter').innerText = `${gameState.currentCaseIndex + 1} / ${gameState.cases.length}`;
+        document.getElementById('p-name').innerText = currentCase.patient.name;
+        document.getElementById('p-details').innerText = `${currentCase.patient.age} év / ${currentCase.patient.gender}`;
+        document.getElementById('p-symptoms').innerText = currentCase.patient.symptoms;
+        
+        document.getElementById('ai-input-container').style.display = 'none';
+        document.getElementById('options-container').style.display = 'flex';
+        document.getElementById('local-feedback').innerText = '';
+        document.getElementById('ai-feedback-box').style.display = 'none';
+        document.getElementById('diagnosis-input').value = '';
+        document.getElementById('next-case-btn').style.display = 'none';
+        document.getElementById('action-btn').style.display = 'block';
+
+        setupPhase1(currentCase);
+    }
+
+    // --- FÁZIS 1: ÉSZLELÉS (Klikkelős) ---
+    function setupPhase1(currentCase) {
+        document.getElementById('phase-indicator').innerText = "FÁZIS 1: ÉSZLELÉS";
+        document.getElementById('instruction-text').innerText = "Kattints a papíron azokra a sorokra, ahol az érték KÓROS!";
+        document.getElementById('options-container').innerHTML = ''; // Fázis 1-ben nincs gomb konténer
+        document.getElementById('action-btn').innerText = "ELLENŐRZÉS";
+        document.getElementById('action-btn').onclick = checkPhase1;
+
+        const tbody = document.getElementById('lab-table-body');
+        tbody.innerHTML = '';
+
+        // Adatok keverése (Normál + Kóros)
+        let displayList = [...currentCase.lab_results];
+        const usedNames = new Set(displayList.map(item => item.name));
+        let fillersNeeded = 6; 
+        
+        for (let param of standardParams) {
+            if (!usedNames.has(param.name) && fillersNeeded > 0) {
+                displayList.push({
+                    name: param.name,
+                    value: (Math.random() * (param.max - param.min) + param.min).toFixed(1),
+                    unit: param.unit, min: param.min, max: param.max, is_abnormal: false
+                });
+                fillersNeeded--;
+            }
+        }
+        displayList.sort(() => Math.random() - 0.5);
+
+        displayList.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.dataset.abnormal = item.is_abnormal;
+            tr.onclick = () => { if(gameState.phase===1) tr.classList.toggle('selected'); };
+            tr.innerHTML = `
+                <td>${item.name}</td>
+                <td class="col-result">${item.value}</td>
+                <td>${item.unit}</td>
+                <td class="col-flag" id="flag-${index}"></td>
+                <td class="col-ref">${item.min} - ${item.max}</td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function checkPhase1() {
+        const rows = document.querySelectorAll('#lab-table-body tr');
+        let missed = 0; let wrong = 0;
+        rows.forEach((tr, index) => {
+            const isAbnormal = tr.dataset.abnormal === 'true';
+            const isSelected = tr.classList.contains('selected');
+            const flag = document.getElementById(`flag-${index}`);
+            
+            if (isAbnormal && isSelected) { 
+                tr.classList.remove('selected'); tr.classList.add('correct'); 
+                flag.innerText = "!"; 
+            } else if (isAbnormal && !isSelected) { 
+                tr.classList.add('missed'); flag.innerText = "M"; missed++; 
+            } else if (!isAbnormal && isSelected) { 
+                tr.classList.remove('selected'); tr.style.textDecoration="line-through"; wrong++; 
+            }
+        });
+
+        if (missed === 0 && wrong === 0) {
+            gameState.score += 10;
+            updateScore();
+            document.getElementById('local-feedback').innerText = "✔ Helyes! Minden eltérést megtaláltál.";
+            document.getElementById('local-feedback').style.color = "#27ae60";
+            setTimeout(setupPhase2, 1000);
+        } else {
+            document.getElementById('local-feedback').innerText = "⚠️ Javítsd a hibákat a továbbhaladáshoz!";
+            document.getElementById('local-feedback').style.color = "#e74c3c";
+        }
+    }
+
+    // --- FÁZIS 2: RENDSZER (Feleletválasztós) ---
+    function setupPhase2() {
+        gameState.phase = 2;
+        document.getElementById('phase-indicator').innerText = "FÁZIS 2: RENDSZER";
+        document.getElementById('instruction-text').innerText = "Melyik rendszerrel van a fő probléma?";
+        document.getElementById('action-btn').style.display = 'none'; // Itt a gombokra kattint
+        document.getElementById('local-feedback').innerText = "";
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        
+        const systems = ["Vérképzés / Vasanyagcsere zavara", "Immunrendszer / Gyulladás", "Kiválasztó rendszer (Vese)", "Májfunkció / Toxikus ártalom", "Epeelvezető rendszer"];
+        const correct = gameState.cases[gameState.currentCaseIndex].phase2_correct;
+        
+        // Gombok generálása
+        let opts = [correct];
+        while(opts.length < 4) {
+            let rnd = systems[Math.floor(Math.random()*systems.length)];
+            if(!opts.includes(rnd)) opts.push(rnd);
+        }
+        opts.sort(()=>Math.random()-0.5);
+
+        opts.forEach(opt => {
+            let btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => {
+                if(opt === correct) {
+                    btn.classList.add('correct');
+                    gameState.score += 20;
+                    updateScore();
+                    setTimeout(setupPhase3, 800);
+                } else {
+                    btn.classList.add('wrong');
+                }
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    // --- FÁZIS 3: DIAGNÓZIS (AI SZÖVEGES ÉRTÉKELÉS) ---
+    function setupPhase3() {
+        gameState.phase = 3;
+        document.getElementById('phase-indicator').innerText = "FÁZIS 3: DIAGNÓZIS";
+        document.getElementById('instruction-text').innerText = "Mi a diagnózis? Írd le saját szavaiddal az indoklást is!";
+        
+        document.getElementById('options-container').style.display = 'none'; // Gombok eltüntetése
+        document.getElementById('ai-input-container').style.display = 'block'; // Textarea megjelenítése
+        
+        const btn = document.getElementById('action-btn');
+        btn.style.display = 'block';
+        btn.innerText = "AI KIÉRTÉKELÉS";
+        btn.onclick = evaluateWithAI;
+    }
+
+    async function evaluateWithAI() {
+        const userText = document.getElementById('diagnosis-input').value;
+        if(userText.trim().length < 5) {
+            alert("Kérlek írj be egy diagnózist!");
+            return;
+        }
+
+        const btn = document.getElementById('action-btn');
+        const feedbackBox = document.getElementById('ai-feedback-box');
+        const currentCase = gameState.cases[gameState.currentCaseIndex];
+
+        // UI Loading State
+        btn.disabled = true;
+        btn.innerHTML = `<span class="loader"></span> ÉRTÉKELÉS...`;
+        feedbackBox.style.display = 'none';
+
+        // Kritérium összeállítása a helyes válaszból
+        // Ez megy az AI-nak mint "referencia"
+        const criteriaObj = {};
+        const criteriaKey = `A helyes diagnózis felismerése: "${currentCase.phase3_correct}". Indoklás: ${currentCase.explanation}`;
+        criteriaObj[criteriaKey] = 50; // Ez a maximális pontszám erre a feladatra
+
+        try {
+            console.log("AI Kérés küldése...");
+            const result = await callGeminiScorer(userText, criteriaObj);
+            
+            // Eredmény megjelenítése
+            const score = result.score || 0;
+            const explanation = result.explanation || "Nincs szöveges értékelés.";
+            
+            gameState.score += score;
+            updateScore();
+
+            feedbackBox.style.display = 'block';
+            feedbackBox.innerHTML = `
+                <div style="font-weight:bold; margin-bottom:5px; color:${score > 30 ? '#2ecc71' : '#e74c3c'}">
+                    AI Pontszám: ${score} / 50
+                </div>
+                <div style="font-style:italic; color:#ccc; margin-bottom:10px;">"${explanation}"</div>
+                <div style="border-top:1px solid #555; paddingTop:5px; font-size:0.8em; color:#aaa;">
+                    Helyes megoldás: ${currentCase.phase3_correct}
+                </div>
+            `;
+            
+            document.getElementById('next-case-btn').style.display = 'block';
+            btn.style.display = 'none'; // Gomb eltüntetése, hogy ne küldje újra
+
+        } catch (error) {
+            console.error(error);
+            alert("Hiba történt az AI kommunikációban. Ellenőrizd a konzolt vagy a Worker URL-t.");
+            btn.disabled = false;
+            btn.innerText = "ÚJRAPRÓBÁLÁS";
+        }
+    }
+
+    // --- AI API HÍVÓ FÜGGVÉNY (A mintafájlból) ---
+    async function callGeminiScorer(textToEvaluate, criteria) {
+        const response = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ textToEvaluate, criteria })
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`Worker hiba: ${response.status} ${errorBody}`);
+        }
+        return await response.json();
+    }
+
+    function updateScore() {
+        document.getElementById('score').innerText = gameState.score;
+    }
+
+    function nextCase() {
+        gameState.currentCaseIndex++;
+        if(gameState.currentCaseIndex >= gameState.cases.length) {
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'flex';
+            document.getElementById('end-score').innerText = `Végső pontszám: ${gameState.score}`;
+        } else {
+            loadCase();
+        }
+    }
+</script>
+
+</body>
+</html>
