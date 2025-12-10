@@ -567,7 +567,9 @@
             document.getElementById('local-feedback').innerText = "";
             document.getElementById('ai-feedback-box').style.display = "none";
             document.getElementById('next-btn').style.display = "none";
-            document.getElementById('action-btn').style.display = "block";
+            const actBtn = document.getElementById('action-btn');
+            actBtn.style.display = "block";
+            actBtn.disabled = false; // FONTOS: Újra engedélyezzük!
 
             setupPhase1(c);
         }
