@@ -1,0 +1,443 @@
+[
+  {
+    "id": "case_01",
+    "difficulty": "Kezdő",
+    "patient": {
+      "name": "Kovács Júlia",
+      "age": 34,
+      "gender": "Nő",
+      "symptoms": "Erős fáradékonyság, hajhullás, sápadt bőr. Erős menstruációs vérzésről számol be."
+    },
+    "lab_results": [
+      { "name": "Hemoglobin", "value": 98, "unit": "g/L", "min": 120, "max": 160, "is_abnormal": true, "trend": "low" },
+      { "name": "Vörösvértest (RBC)", "value": 3.8, "unit": "T/L", "min": 4.0, "max": 5.2, "is_abnormal": true, "trend": "low" },
+      { "name": "MCV", "value": 72, "unit": "fL", "min": 80, "max": 99, "is_abnormal": true, "trend": "low" },
+      { "name": "Vas (Se-Fe)", "value": 5.2, "unit": "μmol/L", "min": 10.0, "max": 28.0, "is_abnormal": true, "trend": "low" },
+      { "name": "Fehérvérsejt (WBC)", "value": 6.5, "unit": "G/L", "min": 4.5, "max": 11.0, "is_abnormal": false },
+      { "name": "Glükóz", "value": 4.9, "unit": "mmol/L", "min": 3.9, "max": 6.0, "is_abnormal": false }
+    ],
+    "phase2_correct": "Vérképzés / Vasanyagcsere zavara",
+    "phase3_correct": "Vashiányos vérszegénység",
+    "phase3_options": ["Vashiányos vérszegénység", "B12-vitamin hiány", "Leukémia", "Veseelégtelenség"],
+    "explanation": "Az alacsony hemoglobin és vörösvértestszám vérszegénységet jelez. Az alacsony MCV (kis sejtek) és az alacsony szérum vas egyértelműen vashiányra utal."
+  },
+  {
+    "id": "case_02",
+    "difficulty": "Kezdő",
+    "patient": {
+      "name": "Nagy Péter",
+      "age": 62,
+      "gender": "Férfi",
+      "symptoms": "Magas láz (39°C), produktív köhögés, mellkasi fájdalom."
+    },
+    "lab_results": [
+      { "name": "Fehérvérsejt (WBC)", "value": 18.5, "unit": "G/L", "min": 4.5, "max": 11.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Neutrofil granulocita", "value": 85, "unit": "%", "min": 40, "max": 74, "is_abnormal": true, "trend": "high" },
+      { "name": "CRP", "value": 120.0, "unit": "mg/L", "min": 0.0, "max": 5.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Vörösvértest süllyedés (We)", "value": 45, "unit": "mm/h", "min": 0, "max": 15, "is_abnormal": true, "trend": "high" },
+      { "name": "Hemoglobin", "value": 135, "unit": "g/L", "min": 130, "max": 170, "is_abnormal": false },
+      { "name": "Kreatinin", "value": 85, "unit": "μmol/L", "min": 60, "max": 105, "is_abnormal": false }
+    ],
+    "phase2_correct": "Immunrendszer / Gyulladás",
+    "phase3_correct": "Akut bakteriális fertőzés (pl. tüdőgyulladás)",
+    "phase3_options": ["Akut bakteriális fertőzés", "Vírusos influenza", "Vashiányos vérszegénység", "Allergiás reakció"],
+    "explanation": "A jelentősen megemelkedett fehérvérsejtszám (főleg neutrofil túlsúllyal) és a nagyon magas CRP tipikus jelei a bakteriális fertőzésnek."
+  },
+  {
+    "id": "case_03",
+    "difficulty": "Kezdő",
+    "patient": {
+      "name": "Varga István",
+      "age": 55,
+      "gender": "Férfi",
+      "symptoms": "Állandó szomjúságérzet, gyakori éjszakai vizelés, látásromlás."
+    },
+    "lab_results": [
+      { "name": "Glükóz (Éhgyomri)", "value": 14.2, "unit": "mmol/L", "min": 3.9, "max": 6.0, "is_abnormal": true, "trend": "high" },
+      { "name": "HbA1c", "value": 9.5, "unit": "%", "min": 4.0, "max": 6.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Vizelet Glükóz", "value": "POZITÍV", "unit": "", "min": "NEG", "max": "NEG", "is_abnormal": true, "trend": "high" },
+      { "name": "Koleszterin", "value": 6.8, "unit": "mmol/L", "min": 2.0, "max": 5.2, "is_abnormal": true, "trend": "high" },
+      { "name": "TSH", "value": 2.1, "unit": "mIU/L", "min": 0.4, "max": 4.0, "is_abnormal": false }
+    ],
+    "phase2_correct": "Szénhidrát-anyagcsere",
+    "phase3_correct": "Cukorbetegség (Diabetes Mellitus)",
+    "phase3_options": ["Cukorbetegség", "Veseelégtelenség", "Hasnyálmirigy-gyulladás", "Pajzsmirigy-túlműködés"],
+    "explanation": "A kiugróan magas éhgyomri vércukor és a magas HbA1c (ami az elmúlt hetek átlagát mutatja) egyértelműen cukorbetegségre utal."
+  },
+  {
+    "id": "case_04",
+    "difficulty": "Kezdő",
+    "patient": {
+      "name": "Kiss Éva",
+      "age": 70,
+      "gender": "Nő",
+      "symptoms": "Lábvizesedés (ödéma), gyengeség, étvágytalanság. Ismert magas vérnyomás."
+    },
+    "lab_results": [
+      { "name": "Karbamid", "value": 18.5, "unit": "mmol/L", "min": 2.8, "max": 7.2, "is_abnormal": true, "trend": "high" },
+      { "name": "Kreatinin", "value": 250, "unit": "μmol/L", "min": 50, "max": 90, "is_abnormal": true, "trend": "high" },
+      { "name": "eGFR", "value": 25, "unit": "ml/perc", "min": 90, "max": 120, "is_abnormal": true, "trend": "low" },
+      { "name": "Kálium", "value": 5.8, "unit": "mmol/L", "min": 3.5, "max": 5.1, "is_abnormal": true, "trend": "high" },
+      { "name": "Nátrium", "value": 138, "unit": "mmol/L", "min": 135, "max": 145, "is_abnormal": false }
+    ],
+    "phase2_correct": "Kiválasztó rendszer (Vese)",
+    "phase3_correct": "Veseelégtelenség",
+    "phase3_options": ["Veseelégtelenség", "Májcirrózis", "Szívelégtelenség", "Cukorbetegség"],
+    "explanation": "A magas karbamid és kreatinin, valamint a kritikusan alacsony eGFR a vese szűrőfunkciójának súlyos romlását jelzi."
+  },
+  {
+    "id": "case_05",
+    "difficulty": "Kezdő",
+    "patient": {
+      "name": "Szabó Tamás",
+      "age": 42,
+      "gender": "Férfi",
+      "symptoms": "Panaszmentes, menedzserszűrésen vesz részt. Túlsúlyos."
+    },
+    "lab_results": [
+      { "name": "Összkoleszterin", "value": 7.8, "unit": "mmol/L", "min": 2.0, "max": 5.2, "is_abnormal": true, "trend": "high" },
+      { "name": "LDL koleszterin", "value": 5.5, "unit": "mmol/L", "min": 1.0, "max": 3.4, "is_abnormal": true, "trend": "high" },
+      { "name": "Triglicerid", "value": 3.1, "unit": "mmol/L", "min": 0.5, "max": 1.7, "is_abnormal": true, "trend": "high" },
+      { "name": "HDL koleszterin", "value": 0.9, "unit": "mmol/L", "min": 1.0, "max": 2.5, "is_abnormal": true, "trend": "low" },
+      { "name": "Glükóz", "value": 5.8, "unit": "mmol/L", "min": 3.9, "max": 6.0, "is_abnormal": false }
+    ],
+    "phase2_correct": "Zsíranyagcsere",
+    "phase3_correct": "Hiperlipidémia (Magas vérzsírszint)",
+    "phase3_options": ["Hiperlipidémia", "Májgyulladás", "Cukorbetegség", "Köszvény"],
+    "explanation": "Minden lipid paraméter (Koleszterin, LDL, Triglicerid) kórosan magas, ami növeli a szív-érrendszeri betegségek kockázatát."
+  },
+  {
+    "id": "case_06",
+    "difficulty": "Közepes",
+    "patient": {
+      "name": "Kelemen Géza",
+      "age": 50,
+      "gender": "Férfi",
+      "symptoms": "Nincs specifikus panasz, esetleg enyhe hasi diszkomfort. Rendszeres alkoholfogyasztó."
+    },
+    "lab_results": [
+      { "name": "GGT", "value": 350, "unit": "U/L", "min": 8, "max": 50, "is_abnormal": true, "trend": "high" },
+      { "name": "GOT (ASAT)", "value": 65, "unit": "U/L", "min": 5, "max": 40, "is_abnormal": true, "trend": "high" },
+      { "name": "MCV", "value": 105, "unit": "fL", "min": 80, "max": 99, "is_abnormal": true, "trend": "high" },
+      { "name": "GPT (ALAT)", "value": 45, "unit": "U/L", "min": 5, "max": 41, "is_abnormal": true, "trend": "high" },
+      { "name": "Bilirubin Össz", "value": 15, "unit": "μmol/L", "min": 3, "max": 21, "is_abnormal": false }
+    ],
+    "phase2_correct": "Májfunkció / Toxikus ártalom",
+    "phase3_correct": "Alkoholos májkárosodás",
+    "phase3_options": ["Alkoholos májkárosodás", "Vírusos Hepatitis", "Epekő", "Veseelégtelenség"],
+    "explanation": "A GGT izolált, kiugró emelkedése, enyhe GOT emelkedéssel és a megnagyobbodott vörösvértestekkel (magas MCV) tipikus alkohol okozta ártalomra."
+  },
+  {
+    "id": "case_07",
+    "difficulty": "Közepes",
+    "patient": {
+      "name": "Tóth Károly",
+      "age": 58,
+      "gender": "Férfi",
+      "symptoms": "Hirtelen jelentkező, lüktető fájdalom a nagylábujjában, duzzanat."
+    },
+    "lab_results": [
+      { "name": "Húgysav", "value": 520, "unit": "μmol/L", "min": 200, "max": 420, "is_abnormal": true, "trend": "high" },
+      { "name": "CRP", "value": 15.0, "unit": "mg/L", "min": 0.0, "max": 5.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Triglicerid", "value": 2.8, "unit": "mmol/L", "min": 0.5, "max": 1.7, "is_abnormal": true, "trend": "high" },
+      { "name": "Kreatinin", "value": 95, "unit": "μmol/L", "min": 60, "max": 105, "is_abnormal": false },
+      { "name": "Kalcium", "value": 2.4, "unit": "mmol/L", "min": 2.1, "max": 2.6, "is_abnormal": false }
+    ],
+    "phase2_correct": "Purin-anyagcsere",
+    "phase3_correct": "Köszvény (Arthritis urica)",
+    "phase3_options": ["Köszvény", "Reumás ízületi gyulladás", "Csonttörés", "Vénás trombózis"],
+    "explanation": "A magas húgysavszint kristálykiválást okoz az ízületekben, ami a gyulladásos paraméterek (CRP) enyhe emelkedésével és a tipikus tünetekkel köszvényt jelez."
+  },
+  {
+    "id": "case_08",
+    "difficulty": "Közepes",
+    "patient": {
+      "name": "Horváth Anna",
+      "age": 28,
+      "gender": "Nő",
+      "symptoms": "Fogyás normál étvágy mellett, szívdobogásérzés, kézremegés, izzadékonyság."
+    },
+    "lab_results": [
+      { "name": "TSH", "value": 0.01, "unit": "mIU/L", "min": 0.4, "max": 4.0, "is_abnormal": true, "trend": "low" },
+      { "name": "Szabad T4 (fT4)", "value": 35.0, "unit": "pmol/L", "min": 12.0, "max": 22.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Glükóz", "value": 5.0, "unit": "mmol/L", "min": 3.9, "max": 6.0, "is_abnormal": false },
+      { "name": "Koleszterin", "value": 3.1, "unit": "mmol/L", "min": 3.5, "max": 5.2, "is_abnormal": true, "trend": "low" }
+    ],
+    "phase2_correct": "Hormonális rendszer (Pajzsmirigy)",
+    "phase3_correct": "Pajzsmirigy-túlműködés (Hyperthyreosis)",
+    "phase3_options": ["Pajzsmirigy-túlműködés", "Pajzsmirigy-alulműködés", "Cukorbetegség", "Vashiány"],
+    "explanation": "A mérhetetlenül alacsony TSH szint és a magas szabad pajzsmirigyhormon (T4) szintje túlműködésre utal."
+  },
+  {
+    "id": "case_09",
+    "difficulty": "Közepes",
+    "patient": {
+      "name": "Molnár Zsuzsanna",
+      "age": 45,
+      "gender": "Nő",
+      "symptoms": "Indokolatlan hízás, állandó fázékonyság, fáradtság, száraz bőr."
+    },
+    "lab_results": [
+      { "name": "TSH", "value": 12.5, "unit": "mIU/L", "min": 0.4, "max": 4.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Szabad T4 (fT4)", "value": 9.0, "unit": "pmol/L", "min": 12.0, "max": 22.0, "is_abnormal": true, "trend": "low" },
+      { "name": "Összkoleszterin", "value": 6.5, "unit": "mmol/L", "min": 2.0, "max": 5.2, "is_abnormal": true, "trend": "high" },
+      { "name": "Triglicerid", "value": 1.9, "unit": "mmol/L", "min": 0.5, "max": 1.7, "is_abnormal": true, "trend": "high" }
+    ],
+    "phase2_correct": "Hormonális rendszer (Pajzsmirigy)",
+    "phase3_correct": "Pajzsmirigy-alulműködés (Hypothyreosis)",
+    "phase3_options": ["Pajzsmirigy-alulműködés", "Pajzsmirigy-túlműködés", "Veseelégtelenség", "Májcirrózis"],
+    "explanation": "A magas TSH és alacsony T4 hormon szintje alulműködést jelez. Az alulműködés gyakran okoz másodlagos koleszterinszint-emelkedést is."
+  },
+  {
+    "id": "case_10",
+    "difficulty": "Haladó",
+    "patient": {
+      "name": "Sipos Gábor",
+      "age": 52,
+      "gender": "Férfi",
+      "symptoms": "Jobb bordaív alatti görcsös fájdalom, sárgás szemfehérje, sötét vizelet."
+    },
+    "lab_results": [
+      { "name": "Bilirubin Össz", "value": 85.0, "unit": "μmol/L", "min": 3, "max": 21, "is_abnormal": true, "trend": "high" },
+      { "name": "Bilirubin Direkt", "value": 62.0, "unit": "μmol/L", "min": 0, "max": 5, "is_abnormal": true, "trend": "high" },
+      { "name": "GGT", "value": 210, "unit": "U/L", "min": 8, "max": 50, "is_abnormal": true, "trend": "high" },
+      { "name": "ALP (Alkalikus foszfatáz)", "value": 450, "unit": "U/L", "min": 40, "max": 129, "is_abnormal": true, "trend": "high" },
+      { "name": "GOT", "value": 55, "unit": "U/L", "min": 5, "max": 40, "is_abnormal": true, "trend": "high" }
+    ],
+    "phase2_correct": "Epeelvezető rendszer",
+    "phase3_correct": "Epeúti elzáródás (pl. epekő)",
+    "phase3_options": ["Epeúti elzáródás", "Vírusos májgyulladás", "Hemolitikus vérszegénység", "Hasnyálmirigy-gyulladás"],
+    "explanation": "A direkt bilirubin dominanciája, valamint a GGT és ALP (kolesztatikus enzimek) jelentős emelkedése az epeelfolyás akadályozottságára utal."
+  },
+  {
+    "id": "case_11",
+    "difficulty": "Közepes",
+    "patient": {
+      "name": "Németh Luca",
+      "age": 82,
+      "gender": "Nő",
+      "symptoms": "Zavartság, elesettség, száraz nyálkahártyák. Keveset ivott az elmúlt napokban."
+    },
+    "lab_results": [
+      { "name": "Hematokrit", "value": 0.52, "unit": "L/L", "min": 0.35, "max": 0.47, "is_abnormal": true, "trend": "high" },
+      { "name": "Hemoglobin", "value": 165, "unit": "g/L", "min": 120, "max": 160, "is_abnormal": true, "trend": "high" },
+      { "name": "Karbamid", "value": 14.2, "unit": "mmol/L", "min": 2.8, "max": 7.2, "is_abnormal": true, "trend": "high" },
+      { "name": "Nátrium", "value": 149, "unit": "mmol/L", "min": 135, "max": 145, "is_abnormal": true, "trend": "high" },
+      { "name": "Kreatinin", "value": 90, "unit": "μmol/L", "min": 50, "max": 90, "is_abnormal": false }
+    ],
+    "phase2_correct": "Folyadékháztartás",
+    "phase3_correct": "Kiszáradás (Exsiccosis)",
+    "phase3_options": ["Kiszáradás", "Veseelégtelenség", "Cukorbetegség", "Policitémia (Vérrák)"],
+    "explanation": "A vér besűrűsödését jelzi a magas hematokrit és hemoglobin. A karbamid emelkedése (normál kreatinin mellett) tipikus prerenális (vese előtti) ok, azaz folyadékhiány."
+  },
+  {
+    "id": "case_12",
+    "difficulty": "Haladó",
+    "patient": {
+      "name": "Kovács Béla",
+      "age": 68,
+      "gender": "Férfi",
+      "symptoms": "Bizonytalan járás, zsibbadó végtagok, nyelvégés, sápadtság."
+    },
+    "lab_results": [
+      { "name": "Hemoglobin", "value": 95, "unit": "g/L", "min": 130, "max": 170, "is_abnormal": true, "trend": "low" },
+      { "name": "MCV", "value": 115, "unit": "fL", "min": 80, "max": 99, "is_abnormal": true, "trend": "high" },
+      { "name": "Vas (Se-Fe)", "value": 18.0, "unit": "μmol/L", "min": 11.0, "max": 30.0, "is_abnormal": false },
+      { "name": "LDH", "value": 520, "unit": "U/L", "min": 240, "max": 480, "is_abnormal": true, "trend": "high" },
+      { "name": "Trombocita", "value": 130, "unit": "G/L", "min": 150, "max": 400, "is_abnormal": true, "trend": "low" }
+    ],
+    "phase2_correct": "Vérképzés / Vitaminhiány",
+    "phase3_correct": "B12-vitamin hiány (Megaloblasztos anémia)",
+    "phase3_options": ["B12-vitamin hiány", "Vashiányos vérszegénység", "Leukémia", "Májcirrózis"],
+    "explanation": "Vérszegénység, de a sejtek a szokásosnál nagyobbak (magas MCV). Ez, párosulva a neurológiai tünetekkel, B12-vitamin hiányra utal."
+  },
+  {
+    "id": "case_13",
+    "difficulty": "Haladó",
+    "patient": {
+      "name": "Takács Dániel",
+      "age": 29,
+      "gender": "Férfi",
+      "symptoms": "Hányinger, étvágytalanság, jobb bordaív alatti érzékenység. Külföldi útról tért haza."
+    },
+    "lab_results": [
+      { "name": "GOT (ASAT)", "value": 1250, "unit": "U/L", "min": 5, "max": 40, "is_abnormal": true, "trend": "high" },
+      { "name": "GPT (ALAT)", "value": 1500, "unit": "U/L", "min": 5, "max": 41, "is_abnormal": true, "trend": "high" },
+      { "name": "Bilirubin Össz", "value": 55, "unit": "μmol/L", "min": 3, "max": 21, "is_abnormal": true, "trend": "high" },
+      { "name": "GGT", "value": 85, "unit": "U/L", "min": 8, "max": 50, "is_abnormal": true, "trend": "high" },
+      { "name": "CRP", "value": 10.0, "unit": "mg/L", "min": 0.0, "max": 5.0, "is_abnormal": true, "trend": "high" }
+    ],
+    "phase2_correct": "Májfunkció / Vírusfertőzés",
+    "phase3_correct": "Akut vírusos májgyulladás (Hepatitis)",
+    "phase3_options": ["Akut vírusos Hepatitis", "Alkoholos májkárosodás", "Epekő", "Zsírmáj"],
+    "explanation": "A transzaminázok (GOT, GPT) extrém, ezres nagyságrendű emelkedése a májsejtek akut szétesését jelzi, ami leggyakrabban vírusos eredetű."
+  },
+  {
+    "id": "case_14",
+    "difficulty": "Közepes",
+    "patient": {
+      "name": "Fekete Zsófia",
+      "age": 22,
+      "gender": "Nő",
+      "symptoms": "Apró bevérzések a bőrön (petechiák), gyakori orrvérzés, elhúzódó menstruáció."
+    },
+    "lab_results": [
+      { "name": "Trombocita", "value": 35, "unit": "G/L", "min": 150, "max": 400, "is_abnormal": true, "trend": "low" },
+      { "name": "Vörösvértest", "value": 4.5, "unit": "T/L", "min": 4.0, "max": 5.2, "is_abnormal": false },
+      { "name": "Fehérvérsejt", "value": 6.0, "unit": "G/L", "min": 4.5, "max": 11.0, "is_abnormal": false },
+      { "name": "Prothrombin idő (INR)", "value": 1.1, "unit": "", "min": 0.8, "max": 1.2, "is_abnormal": false },
+      { "name": "CRP", "value": 2.0, "unit": "mg/L", "min": 0.0, "max": 5.0, "is_abnormal": false }
+    ],
+    "phase2_correct": "Véralvadási rendszer",
+    "phase3_correct": "Trombocitopénia",
+    "phase3_options": ["Trombocitopénia", "Vashiány", "Leukémia", "Májbetegség"],
+    "explanation": "Izoláltan alacsony vérlemezkeszám (trombocita), miközben a többi vérkép paraméter és az alvadási faktorok (INR) normálisak. Ez vérzékenységet okoz."
+  },
+  {
+    "id": "case_15",
+    "difficulty": "Közepes",
+    "patient": {
+      "name": "Bíró Ádám",
+      "age": 16,
+      "gender": "Férfi",
+      "symptoms": "Torokfájás, duzzadt nyaki nyirokcsomók, hőemelkedés, fáradtság."
+    },
+    "lab_results": [
+      { "name": "Fehérvérsejt (WBC)", "value": 9.5, "unit": "G/L", "min": 4.5, "max": 11.0, "is_abnormal": false },
+      { "name": "Limfocita", "value": 65, "unit": "%", "min": 25, "max": 40, "is_abnormal": true, "trend": "high" },
+      { "name": "Neutrofil granulocita", "value": 25, "unit": "%", "min": 40, "max": 74, "is_abnormal": true, "trend": "low" },
+      { "name": "CRP", "value": 12.0, "unit": "mg/L", "min": 0.0, "max": 5.0, "is_abnormal": true, "trend": "high" },
+      { "name": "GOT", "value": 55, "unit": "U/L", "min": 5, "max": 40, "is_abnormal": true, "trend": "high" }
+    ],
+    "phase2_correct": "Immunrendszer / Gyulladás",
+    "phase3_correct": "Vírusos fertőzés (pl. Mononucleosis)",
+    "phase3_options": ["Vírusos fertőzés", "Bakteriális tüdőgyulladás", "Leukémia", "Vashiány"],
+    "explanation": "A normál összfehérvérsejtszám mellett a limfociták relatív túlsúlya és az enyhén emelkedett CRP vírusos eredetre (pl. csókbetegség) utal, nem baktériumra."
+  },
+  {
+    "id": "case_16",
+    "difficulty": "Haladó",
+    "patient": {
+      "name": "Nagy László",
+      "age": 48,
+      "gender": "Férfi",
+      "symptoms": "Övszerű, elviselhetetlen felhasi fájdalom, hányás, mely zsíros étkezés után jelentkezett."
+    },
+    "lab_results": [
+      { "name": "Amiláz", "value": 1200, "unit": "U/L", "min": 28, "max": 100, "is_abnormal": true, "trend": "high" },
+      { "name": "Lipáz", "value": 950, "unit": "U/L", "min": 13, "max": 60, "is_abnormal": true, "trend": "high" },
+      { "name": "Fehérvérsejt (WBC)", "value": 15.0, "unit": "G/L", "min": 4.5, "max": 11.0, "is_abnormal": true, "trend": "high" },
+      { "name": "CRP", "value": 85.0, "unit": "mg/L", "min": 0.0, "max": 5.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Glükóz", "value": 9.2, "unit": "mmol/L", "min": 3.9, "max": 6.0, "is_abnormal": true, "trend": "high" }
+    ],
+    "phase2_correct": "Emésztőrendszer / Hasnyálmirigy",
+    "phase3_correct": "Akut hasnyálmirigy-gyulladás (Pancreatitis)",
+    "phase3_options": ["Akut hasnyálmirigy-gyulladás", "Gyomorfekély", "Epekő roham", "Szívinfarktus"],
+    "explanation": "Az emésztőenzimek (amiláz, lipáz) többszörösére való emelkedése specifikus jele a hasnyálmirigy akut gyulladásának."
+  },
+  {
+    "id": "case_17",
+    "difficulty": "Haladó",
+    "patient": {
+      "name": "Kocsis Márk",
+      "age": 25,
+      "gender": "Férfi",
+      "symptoms": "Sötét vizelet, erős izomfájdalom, gyengeség. Előző nap maratont futott."
+    },
+    "lab_results": [
+      { "name": "CK (Kreatin-kináz)", "value": 15000, "unit": "U/L", "min": 0, "max": 190, "is_abnormal": true, "trend": "high" },
+      { "name": "LDH", "value": 850, "unit": "U/L", "min": 240, "max": 480, "is_abnormal": true, "trend": "high" },
+      { "name": "GOT", "value": 250, "unit": "U/L", "min": 5, "max": 40, "is_abnormal": true, "trend": "high" },
+      { "name": "Kreatinin", "value": 130, "unit": "μmol/L", "min": 60, "max": 105, "is_abnormal": true, "trend": "high" },
+      { "name": "Kálium", "value": 5.5, "unit": "mmol/L", "min": 3.5, "max": 5.1, "is_abnormal": true, "trend": "high" }
+    ],
+    "phase2_correct": "Izomrendszer",
+    "phase3_correct": "Izomkárosodás / Rhabdomyolysis",
+    "phase3_options": ["Izomkárosodás (Rhabdomyolysis)", "Szívinfarktus", "Májgyulladás", "Veseelégtelenség"],
+    "explanation": "A CK extrém emelkedése izomszétesésre utal. Ez veszélyes, mert az izomból kiszabaduló anyagok károsíthatják a vesét (lásd emelkedett kreatinin)."
+  },
+  {
+    "id": "case_18",
+    "difficulty": "Haladó",
+    "patient": {
+      "name": "Bognár Tibor",
+      "age": 35,
+      "gender": "Férfi",
+      "symptoms": "Szédülés, alacsony vérnyomás, gyors pulzus. Közlekedési balesete volt 2 órája."
+    },
+    "lab_results": [
+      { "name": "Hemoglobin", "value": 90, "unit": "g/L", "min": 130, "max": 170, "is_abnormal": true, "trend": "low" },
+      { "name": "Hematokrit", "value": 0.28, "unit": "L/L", "min": 0.40, "max": 0.52, "is_abnormal": true, "trend": "low" },
+      { "name": "MCV", "value": 88, "unit": "fL", "min": 80, "max": 99, "is_abnormal": false },
+      { "name": "Kreatinin", "value": 95, "unit": "μmol/L", "min": 60, "max": 105, "is_abnormal": false },
+      { "name": "Vas (Se-Fe)", "value": 20.0, "unit": "μmol/L", "min": 11.0, "max": 30.0, "is_abnormal": false }
+    ],
+    "phase2_correct": "Keringés / Vérképzés",
+    "phase3_correct": "Akut vérvesztés",
+    "phase3_options": ["Akut vérvesztés", "Vashiányos vérszegénység", "Kiszáradás", "Csontvelő elégtelenség"],
+    "explanation": "Hirtelen csökkent hemoglobin és hematokrit, de a vörösvértestek mérete (MCV) és a vasszint még normális (nincs ideje megváltozni). Ez akut vérzésre utal."
+  },
+  {
+    "id": "case_19",
+    "difficulty": "Haladó",
+    "patient": {
+      "name": "Lukács Magdolna",
+      "age": 60,
+      "gender": "Nő",
+      "symptoms": "Évek óta tartó ízületi fájdalmak, reggeli merevség, fáradékonyság."
+    },
+    "lab_results": [
+      { "name": "Vörösvértest süllyedés (We)", "value": 85, "unit": "mm/h", "min": 0, "max": 20, "is_abnormal": true, "trend": "high" },
+      { "name": "CRP", "value": 35.0, "unit": "mg/L", "min": 0.0, "max": 5.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Hemoglobin", "value": 110, "unit": "g/L", "min": 120, "max": 160, "is_abnormal": true, "trend": "low" },
+      { "name": "Vas (Se-Fe)", "value": 8.0, "unit": "μmol/L", "min": 10.0, "max": 28.0, "is_abnormal": true, "trend": "low" },
+      { "name": "Ferritin (Vasraktár)", "value": 450, "unit": "ug/L", "min": 15, "max": 200, "is_abnormal": true, "trend": "high" }
+    ],
+    "phase2_correct": "Immunrendszer / Krónikus állapot",
+    "phase3_correct": "Krónikus gyulladás (pl. Autoimmun)",
+    "phase3_options": ["Krónikus gyulladás", "Akut bakteriális fertőzés", "Vashiányos vérszegénység", "Májbetegség"],
+    "explanation": "Magas gyulladásos értékek és vérszegénység. Bár a vas alacsony, a raktárak (Ferritin) tele vannak, tehát nem vashiányról van szó, hanem a krónikus gyulladás gátolja a vas felhasználását."
+  },
+  {
+    "id": "case_20",
+    "difficulty": "Szakértő",
+    "patient": {
+      "name": "Faragó Pál",
+      "age": 38,
+      "gender": "Férfi",
+      "symptoms": "Barnás bőrpigmentáció, sóvárgás sós ételek után, alacsony vérnyomás, gyengeség."
+    },
+    "lab_results": [
+      { "name": "Nátrium", "value": 128, "unit": "mmol/L", "min": 135, "max": 145, "is_abnormal": true, "trend": "low" },
+      { "name": "Kálium", "value": 5.9, "unit": "mmol/L", "min": 3.5, "max": 5.1, "is_abnormal": true, "trend": "high" },
+      { "name": "Glükóz", "value": 3.6, "unit": "mmol/L", "min": 3.9, "max": 6.0, "is_abnormal": true, "trend": "low" },
+      { "name": "Kreatinin", "value": 110, "unit": "μmol/L", "min": 60, "max": 105, "is_abnormal": true, "trend": "high" },
+      { "name": "TSH", "value": 2.5, "unit": "mIU/L", "min": 0.4, "max": 4.0, "is_abnormal": false }
+    ],
+    "phase2_correct": "Hormonális / Só-víz háztartás",
+    "phase3_correct": "Mellékvesekéreg-elégtelenség (Addison-kór)",
+    "phase3_options": ["Addison-kór", "Veseelégtelenség", "Cukorbetegség", "Magas vérnyomás"],
+    "explanation": "A nátriumvesztés és kálium-visszatartás (só-víz háztartás zavara) alacsony vércukorral társulva mellékvesekéreg hormonhiányra utal."
+  },
+  {
+    "id": "case_21",
+    "difficulty": "Szakértő",
+    "patient": {
+      "name": "Deák Ferenc",
+      "age": 55,
+      "gender": "Férfi",
+      "symptoms": "Elhízás (alma típusú), magas vérnyomás, ülő életmód."
+    },
+    "lab_results": [
+      { "name": "Glükóz (Éhgyomri)", "value": 6.8, "unit": "mmol/L", "min": 3.9, "max": 6.0, "is_abnormal": true, "trend": "high" },
+      { "name": "Triglicerid", "value": 3.5, "unit": "mmol/L", "min": 0.5, "max": 1.7, "is_abnormal": true, "trend": "high" },
+      { "name": "HDL koleszterin", "value": 0.8, "unit": "mmol/L", "min": 1.0, "max": 2.5, "is_abnormal": true, "trend": "low" },
+      { "name": "Húgysav", "value": 450, "unit": "μmol/L", "min": 200, "max": 420, "is_abnormal": true, "trend": "high" },
+      { "name": "GGT", "value": 65, "unit": "U/L", "min": 8, "max": 50, "is_abnormal": true, "trend": "high" }
+    ],
+    "phase2_correct": "Komplex anyagcsere zavar",
+    "phase3_correct": "Metabolikus szindróma",
+    "phase3_options": ["Metabolikus szindróma", "Cukorbetegség (önállóan)", "Májcirrózis", "Pajzsmirigy-alulműködés"],
+    "explanation": "Nem egyetlen szerv betegsége, hanem tünetegyüttes: emelkedett vércukor, magas vérzsírok (triglicerid), alacsony 'jó' koleszterin és magas húgysav, ami szív-érrendszeri kockázatot jelent."
+  }
+]
