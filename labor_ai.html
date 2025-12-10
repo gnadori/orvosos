@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labor Diagnoszta - Teljes Verzió (v1.1)</title>
+    <title>Labor Diagnoszta - Teljes Verzió (v1.2)</title>
     <style>
         /* --- STÍLUSOK (DESIGN) --- */
         :root {
@@ -353,7 +353,7 @@
 
     <script>
         // --- KONFIGURÁCIÓ ---
-        [cite_start]// A Te Cloudflare Worker címed [cite: 53]
+        // A Te Cloudflare Worker címed
         const WORKER_URL = 'https://verkep.nadorig.workers.dev/';
 
         // --- ORVOSI SZÓTÁR (TOOLTIPS) ---
@@ -584,7 +584,7 @@
             const tbody = document.getElementById('lab-table-body');
             tbody.innerHTML = "";
 
-            [cite_start]// A fájlból jövő "lab_results" használata [cite: 2]
+            // A fájlból jövő "lab_results" használata
             let displayList = [...c.lab_results];
 
             // Kitöltő adatok hozzáadása, hogy ne legyen túl könnyű
@@ -646,7 +646,7 @@
             const cont = document.getElementById('options-container');
             cont.style.display = "block"; cont.innerHTML = "";
 
-            [cite_start]// A fájlból jövő "phase2_correct" használata [cite: 3]
+            // A fájlból jövő "phase2_correct" használata
             const correct = gameCases[currentCaseIndex].phase2_correct;
 
             // Opciók generálása
@@ -696,7 +696,7 @@
             const curr = gameCases[currentCaseIndex];
 
             // Adatcsomag a Workernek
-            [cite_start]// A "phase3_correct" és "explanation" mezőket küldjük [cite: 4]
+            // A "phase3_correct" és "explanation" mezőket küldjük
             const payload = {
                 textToEvaluate: text,
                 criteria: {
