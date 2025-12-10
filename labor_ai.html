@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labor Diagnoszta - Teljes Verzió (v1.6)</title>
+    <title>Labor Diagnoszta - Teljes Verzió (v1.7)</title>
     <style>
         /* --- STÍLUSOK (DESIGN) --- */
         :root {
@@ -594,7 +594,16 @@
             try {
                 // Közvetlenül a beágyazott adatokat használjuk
                 const rawData = embeddedData;
-                gameCases = rawData;
+
+                // Nehézség szerinti csoportosítás és keverés
+                const easy = rawData.filter(c => c.difficulty === "Kezdő").sort(() => Math.random() - 0.5);
+                const medium = rawData.filter(c => c.difficulty === "Közepes").sort(() => Math.random() - 0.5);
+                const hard = rawData.filter(c => c.difficulty === "Haladó").sort(() => Math.random() - 0.5);
+                const expert = rawData.filter(c => c.difficulty === "Szakértő").sort(() => Math.random() - 0.5); // Ha lesz majd
+
+                // Összefűzés sorrendben
+                gameCases = [...easy, ...medium, ...hard, ...expert];
+
                 loadCase(0);
             } catch (error) {
                 alert("Hiba az adatok betöltésekor: " + error);
