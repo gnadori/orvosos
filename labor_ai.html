@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labor Diagnoszta - AI Értékeléssel</title>
+    <style>
+        :root {
+            --paper-bg: #ffffff;
+            --ink-color: #000000;
+            --accent-green: #8cc63f;
+            --selection-bg: #fffde7;
+            --error-bg: #ffebee;
+            --success-ink: #2e7d32;
+            --danger-ink: #c62828;
+            --panel-bg: #2c3e50;
+        }
+
+        body {
+            background-color: #525659;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- JÁTÉK FELÜLET --- */
+        #game-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            height: 95vh;
+        }
+
+        /* --- BAL OLDAL: LELET (Változatlan) --- */
+        .paper-sheet {
+            background: var(--paper-bg);
+            width: 210mm;
+            flex: 2;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            position: relative;
+            color: var(--ink-color);
+        }
+
+        .report-header-bar {
+            border-top: 12px solid var(--accent-green);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+        }
+
+        .logo-placeholder {
+            font-weight: bold; font-size: 1.2rem; color: var(--accent-green);
+            border: 2px solid var(--accent-green); padding: 5px 10px;
+        }
+
+        .patient-info-block { font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4; }
+        .info-row { display: flex; }
+        .info-label { width: 120px; font-weight: bold; }
+        .info-value { flex: 1; }
+        .separator-line { border-bottom: 1px dashed #000; margin: 10px 0; width: 100%; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        thead th { text-align: left; padding-bottom: 5px; border-bottom: 1px dashed #000; font-weight: normal; }
+        .col-result { text-align: right; font-weight: bold; }
+        .col-flag { text-align: center; font-weight: bold; color: var(--danger-ink); }
+        .col-ref { text-align: right; }
+
+        tbody tr { cursor: pointer; border-bottom: 1px solid transparent; }
+        tbody tr:hover { background-color: rgba(0,0,0,0.03); }
+        tr.selected { background-color: var(--selection-bg); }
+        tr.correct { color: var(--success-ink); font-weight: bold; }
+        tr.missed { border: 1px solid var(--danger-ink); }
+
+        /* --- JOBB OLDAL: IRÁNYÍTÓPULT (AI-hoz igazítva) --- */
+        .control-panel {
+            flex: 1;
+            background: var(--panel-bg);
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #465a6e; padding-bottom: 15px; margin-bottom: 20px;
+        }
+
+        .phase-indicator {
+            color: var(--accent-green); font-weight: bold; letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase;
+        }
+
+        .instruction {
+            font-size: 1.1rem; margin-bottom: 20px; background: rgba(255,255,255,0.1);
+            padding: 15px; border-radius: 5px; border-left: 5px solid var(--accent-green);
+        }
+
+        /* Input mező az AI fázishoz */
+        textarea#diagnosis-input {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1rem;
+            resize: none;
+            margin-bottom: 10px;
+            box-sizing: border-box; /* Fontos a padding miatt */
+        }
+
+        textarea:focus { outline: 2px solid var(--accent-green); }
+
+        .btn {
+            padding: 15px; font-size: 1.1rem; border: none; border-radius: 5px; cursor: pointer;
+            width: 100%; margin-top: 10px; font-weight: bold; transition: 0.2s;
+        }
+        .btn-primary { background: var(--accent-green); color: white; }
+        .btn-primary:hover { background: #7ab332; }
+        .btn-primary:disabled { background: #95a5a6; cursor: not-allowed; }
+
+        .options-grid { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn {
+            background: white; color: #333; padding: 12px; border-radius: 4px; cursor: pointer; text-align: left;
+        }
+        .option-btn.correct { background: #27ae60; color: white; }
+        .option-btn.wrong { background: #c0392b; color: white; }
+
+        /* AI Feedback stílus */
+        #ai-feedback-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            display: none;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* Betöltő animáció */
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-green);
+            border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite;
+            display: inline-block; vertical-align: middle; margin-right: 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #start-screen, #game-over-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(30, 30, 30, 0.95); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; font-family: 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <h1 style="color: var(--accent-green); font-size: 3rem;">LABOR DIAGNOSZTA AI</h1>
+        <p style="font-size: 1.2rem; margin-bottom: 30px;">Írd be a diagnózist, az AI kiértékeli!</p>
+        <button class="btn btn-primary" onclick="startGame()" style="width: auto; padding: 15px 40px;">Indítás</button>
+    </div>
+
+    <div id="game-over-screen" style="display: none;">
+        <h1>JÁTÉK VÉGE</h1>
+        <p id="end-score" style="font-size: 1.5rem;"></p>
+        <button class="btn btn-primary" onclick="location.reload()" style="width: 200px;">Újra</button>
+    </div>
+
+    <div id="game-container" style="display: none;">
+        <div class="paper-sheet">
+            <div class="report-header-bar">
+                <div class="logo-placeholder">✚ DUNALAB AI</div>
+                <div style="text-align: right; font-size: 0.8rem; color:#888">Sürgősségi Labor</div>
+            </div>
+            <div class="patient-info-block">
+                <div class="info-row"><div class="info-label">Név:</div><div class="info-value"><strong id="p-name"></strong></div></div>
+                <div class="info-row"><div class="info-label">Kor/Nem:</div><div class="info-value" id="p-details"></div></div>
+                <div class="info-row"><div class="info-label">Panaszok:</div><div class="info-value" style="font-style: italic;" id="p-symptoms"></div></div>
+            </div>
+            <div class="separator-line"></div>
+            <table>
+                <thead>
+                    <tr><th style="width:40%">Tesztnév</th><th style="text-align:right">Eredmény</th><th>Egység</th><th style="text-align:center">F</th><th style="text-align:right">Ref.</th></tr>
+                </thead>
+                <tbody id="lab-table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="control-panel">
+            <div class="panel-header">
+                <div>ESET: <span id="case-counter">1/X</span></div>
+                <div style="font-weight: bold;">PONT: <span id="score">0</span></div>
+            </div>
+
+            <div id="phase-indicator" class="phase-indicator">FÁZIS 1</div>
+            <div id="instruction-text" class="instruction"></div>
+
+            <div id="options-container" class="options-grid"></div>
+
+            <div id="ai-input-container" style="display: none;">
+                <textarea id="diagnosis-input" placeholder="Írd le ide a diagnózist saját szavaiddal..."></textarea>
+            </div>
+
+            <button id="action-btn" class="btn btn-primary" onclick="handleAction()">ELLENŐRZÉS</button>
+            
+            <div id="ai-feedback-box"></div>
+            <div id="local-feedback" style="margin-top: 10px; font-weight: bold;"></div>
+            
+            <button id="next-case-btn" class="btn" style="background: white; color: #333; margin-top: auto; display: none;" onclick="nextCase()">KÖVETKEZŐ ESET ➡️</button>
+        </div>
+    </div>
+
+<script>
+    // --- KONFIGURÁCIÓ ---
+    // A megadott worker URL. Fontos: ennek elérhetőnek kell lennie!
+    const WORKER_URL = '
